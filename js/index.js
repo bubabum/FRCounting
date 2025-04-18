@@ -103,7 +103,6 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	}
 
 	const addExpense = () => {
-
 		document.querySelector("#expenses").appendChild(document.querySelector("#expenseTemplate").content.cloneNode(true));
 		[...document.querySelectorAll(".expenses .expenses__category")].pop().insertAdjacentHTML("beforeend", `
 			${expensesCategories.map(item => `<option value="${item.id}">${item.category}</option>`).join('')}
@@ -140,16 +139,6 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		document.querySelector("#restBalance").textContent = formatToRender(currentReport.restBalance);
 	}
 
-	const calculateDividents = (report) => {
-		const dividents = investors.map(item => item).sort((a, b) => a.percentage - b.percentage);
-		dividents.forEach((item, i, arr) => {
-			if (report.dividentsAmount < 1000) return item.amount = 0;
-			if (i === arr.length - 1) return item.amount = report.dividentsAmount - arr.filter(item => arr.indexOf(item) !== arr.length - 1).reduce((acc, cur) => acc + cur.amount, 0);
-			item.amount = report.dividentsAmount * item.percentage + 100 - report.dividentsAmount * item.percentage % 100;
-		});
-		return dividents.sort((a, b) => a.id - b.id)
-	}
-
 	const createExpense = (elem) => {
 		const expense = {};
 		elem.querySelectorAll("input, select").forEach(item => {
@@ -159,30 +148,46 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	}
 
 	const validateDividentsAmount = report => {
-		if (report.dividentsAmount <= report.balance) return
-		document.querySelector("input[name='dividentsAmount']").value = report.balance;
-		report.dividentsAmount = report.balance;
+		if (report.dividentsAmount > report.balance) report.dividentsAmount = report.balance;
+		if (report.dividentsAmount < 0) report.dividentsAmount = 0;
+		document.querySelector("input[name='dividentsAmount']").value = report.dividentsAmount;
+	}
+
+	const calculateDividents = ({ dividentsAmount }) => {
+		const dividents = investors.map(item => item).sort((a, b) => a.percentage - b.percentage);
+		dividents.forEach((item, i, arr) => {
+			if (dividentsAmount < 1000) return item.amount = 0;
+			if (i === arr.length - 1) return item.amount = dividentsAmount - arr.filter(item => arr.indexOf(item) !== arr.length - 1).reduce((acc, cur) => acc + cur.amount, 0);
+			item.amount = dividentsAmount * item.percentage + 100 - dividentsAmount * item.percentage % 100;
+		});
+		return dividents.sort((a, b) => a.id - b.id)
 	}
 
 	const getTotalExpenses = ({ expenses }) => {
 		return expenses.map(item => item.amount).reduce((acc, cur) => acc + cur, 0);
 	}
 
-	const calculateReport = () => {
-		const report = {
-			expenses: [],
-		};
+	const getReportInputData = () => {
+		const report = {};
 		reportInputs.forEach(item => {
-			report[item.name] = item.type === "number" ? Number(item.value) : item.value;
-		})
-		document.querySelectorAll(".expenses__item").forEach(item => report.expenses.push(createExpense(item)));
-		report.totalExpenses = getTotalExpenses(report);
-		report.grossProfit = report.mainIncome + report.subIncome - report.productionCosts - report.goodsCosts;
-		report.balance = report.mainIncome + report.subIncome + report.initialBalance - report.totalExpenses;
-		validateDividentsAmount(report);
-		report.dividents = calculateDividents(report);
-		report.restBalance = report.mainIncome + report.subIncome + report.initialBalance - report.totalExpenses - report.dividentsAmount;
+			report[item.name] = Number(item.value);
+		});
 		return report
+	}
+
+	const calculateReport = (inputData) => {
+		reportInputs.forEach(item => {
+			currentReport[item.name] = item.type === "number" ? Number(item.value) : item.value;
+		});
+		currentReport.expenses = [];
+		document.querySelectorAll(".expenses__item").forEach(item => currentReport.expenses.push(createExpense(item)));
+		currentReport.totalExpenses = getTotalExpenses(currentReport);
+		currentReport.grossProfit = currentReport.mainIncome + currentReport.subIncome - currentReport.productionCosts - currentReport.goodsCosts;
+		currentReport.balance = currentReport.mainIncome + currentReport.subIncome + currentReport.initialBalance - currentReport.totalExpenses;
+		validateDividentsAmount(currentReport);
+		currentReport.dividents = calculateDividents(currentReport);
+		currentReport.restBalance = currentReport.mainIncome + currentReport.subIncome + currentReport.initialBalance - currentReport.totalExpenses - currentReport.dividentsAmount;
+		return currentReport
 	}
 
 	const setDefaultReportDate = () => {
@@ -192,6 +197,14 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	const createNewReport = () => {
 		openScreen(document.querySelector("#openReport"));
 		document.querySelector("#openReport").disabled = false;
+		appData.currentReport = {
+			expenses: [],
+			dividents: [],
+			totalExpenses: 0,
+			grossProfit: 0,
+			balance: 0,
+			restBalance: 0,
+		}
 		renderReport(appData);
 	}
 
@@ -231,7 +244,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	}
 
 	const saveReport = () => {
-		const report = calculateReport();
+		const report = calculateReport(appData);
 		if (appData.reports.find(item => item.id !== report.id && item.date === report.date)) return alert("Звіт з такою датою вже існує")
 		const oldReport = appData.reports.find(item => item.id === report.id);
 		if (oldReport) {
@@ -246,14 +259,15 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		renderReports();
 	}
 
-	setDefaultReportDate();
-	appData.currentReport = calculateReport();
-	//renderReport(calculateReport());
-
-	[document.querySelector("#expenses"), ...reportInputs].forEach(item => item.addEventListener("change", () => {
-		appData.currentReport = calculateReport();
+	const updateReport = () => {
+		const inputData = getReportInputData();
+		appData.currentReport = calculateReport(inputData);
 		renderReport(appData);
-	}))
+	}
+
+	setDefaultReportDate();
+
+	[document.querySelector("#expenses"), ...reportInputs].forEach(item => item.addEventListener("change", updateReport))
 	document.querySelector(".add-expense").addEventListener("click", addExpense);
 	document.querySelector(".expenses").addEventListener("click", (event) => {
 		if (event.target.closest(".expenses__delete")) removeExpense(event.target);
