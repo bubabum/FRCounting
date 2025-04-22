@@ -128,8 +128,6 @@ body {
 	background-color: white;
 	-webkit-tap-highlight-color: transparent;
 	font-family: "Inter", sans-serif;
-	/* font-family: "Poppins", sans-serif; */
-	/* letter-spacing: 0.5px; */
 }
 
 button {
@@ -255,7 +253,6 @@ input[type="file"]::file-selector-button:hover {
 	background-color: var(--blue-light-color);
 }
 
-/* file upload button active state */
 input[type="file"]::file-selector-button:active {
 	background-color: var(--blue-light-color);
 }
@@ -419,6 +416,12 @@ input[type="file"]::file-selector-button:active {
 	line-height: 1;
 }
 
+.content__label {
+	font-weight: 600;
+	color: #000000;
+	opacity: 0.5;
+}
+
 .report-buttons {
 	display: flex;
 	gap: 20px;
@@ -526,7 +529,7 @@ tbody td {
 }
 
 .chart {
-	max-width: 800px;
+	max-width: 750px;
 }
 
 
@@ -548,4 +551,6 @@ tbody td {
 	.sidebar__btn span {
 		margin: 0;
 	}
+
+
 }
