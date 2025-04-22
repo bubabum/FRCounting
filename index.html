@@ -15,10 +15,15 @@
 </head>
 
 <body>
+	<div class="login">
+		<input type="email" name="" id="email" value="bubabum.drt@gmail.com">
+		<input type="password" id="password" value="Zauer6822">
+		<button id="login" class="blue">Вхід</button>
+	</div>
 	<div class="wrapper">
 		<div class="sidebar">
 			<button id="reportList" data-screen="reports" class="sidebar__btn active">
-				<span class="material-icons-round">bar_chart</span>
+				<span class="material-icons-round">format_list_bulleted</span>
 				<span class="btn-title">Звіти</span>
 				<span class="material-icons-round chevron">chevron_right</span>
 			</button>
@@ -37,9 +42,9 @@
 				<span class="btn-title">Експорт</span>
 				<span class="material-icons-round chevron">chevron_right</span>
 			</button>
-			<button data-screen="charts" class="sidebar__btn">
-				<span class="material-icons-round">file_download</span>
-				<span class="btn-title">Експорт</span>
+			<button id="openCharts" data-screen="charts" class="sidebar__btn" disabled>
+				<span class="material-icons-round">bar_chart</span>
+				<span class="btn-title">Графіки</span>
 				<span class="material-icons-round chevron">chevron_right</span>
 			</button>
 		</div>
@@ -47,20 +52,22 @@
 			<div id="reports" class="content__screen active">
 				<div class="content__title">Звіти</div>
 				<div class="content__page">
-					<div class="content__section">
-						<table id="reports" class="reports">
-							<thead>
-								<tr>
-									<td>Дата</td>
-									<td>Дохід</td>
-									<td>Витрати</td>
-									<td>Прибуток</td>
-									<td></td>
-								</tr>
-							</thead>
-							<tbody></tbody>
-						</table>
-						<button id="createReport" class="create-report blue"><span class="material-icons-round">create</span>Створити</button>
+					<div class="content__controls">
+						<button id="createReport" class="reports__add blue"><span class="material-icons-round">create</span>Створити</button>
+					</div>
+					<div class="content__row">
+						<div class="content__section">
+							<div class="reports">
+								<div class="reports__header">
+									<div>Дата</div>
+									<div>Дохід</div>
+									<div>Витрати</div>
+									<div>Прибуток</div>
+									<div>-</div>
+								</div>
+								<div id="reportsContainer" class="reports__content"></div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -143,16 +150,16 @@
 			<div id="import" class="content__screen">
 				<div class="content__title">Імпорт</div>
 				<div class="content__page">
-					<div class="content__seсtion">
-						<input id="file" type="file" accept=".json">
+					<div class="content__section">
 						<button id="importFromFile" class="blue"><span class="material-icons-round">file_upload</span>Імпорт</button>
+						<input id="file" type="file" accept=".json">
 					</div>
 				</div>
 			</div>
 			<div id="export" class="content__screen">
 				<div class="content__title">Експорт</div>
 				<div class="content__page">
-					<div class="content__seсtion">
+					<div class="content__section">
 						<button id="saveToFile" class="blue"><span class="material-icons-round">file_download</span>Експорт</button>
 					</div>
 				</div>
@@ -160,8 +167,38 @@
 			<div id="charts" class="content__screen">
 				<div class="content__title">Графік</div>
 				<div class="content__page">
-					<div class="chart content__section">
-						<canvas id="myChart"></canvas>
+					<div class="content__row">
+						<div class="content__column">
+							<div class="content__row">
+								<div class=" content__section">
+									<label for="">Графіки за:</label>
+									<select id="chartYears" class="" name="chartYears"></select>
+								</div>
+							</div>
+						</div>
+						<div class="content__column">
+							<div class="content__row">
+								<div class="chart content__section">
+									<canvas id="revenueChart"></canvas>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="content__row">
+						<div class="content__column">
+							<div class="content__row">
+								<div class="chart content__section">
+									<canvas id="grossProfitChart"></canvas>
+								</div>
+							</div>
+						</div>
+						<div class="content__column">
+							<div class="content__row">
+								<div class="chart content__section">
+									<canvas id="totalExpensesChart"></canvas>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>

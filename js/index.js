@@ -2,6 +2,11 @@
 import { readJsonFile } from "./import.js"
 import { saveToFile } from "./export.js"
 import { openPrintWindow } from "./print.js"
+import { createChart, updateChart } from "./chart.js"
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
+import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 document.addEventListener("DOMContentLoaded", (async () => {
 	let appData = {
 		reports: [],
@@ -45,19 +50,116 @@ document.addEventListener("DOMContentLoaded", (async () => {
 				category: "Транспортні витрати",
 			},
 		],
-		currentReport: {},
 	}
+
+	const firebaseConfig = {
+		apiKey: "AIzaSyDkAtXqSTMvbHhP9zKpg8eCneH4iflZdZI",
+		authDomain: "frcounting.firebaseapp.com",
+		databaseURL: "https://frcounting-default-rtdb.europe-west1.firebasedatabase.app",
+		projectId: "frcounting",
+		storageBucket: "frcounting.firebasestorage.app",
+		messagingSenderId: "1055777877517",
+		appId: "1:1055777877517:web:5deb415ed6206879c3ef44",
+		measurementId: "G-JQENMKDRKS"
+	};
+
+	const app = initializeApp(firebaseConfig);
+	const analytics = getAnalytics(app);
+	const db = getDatabase(app);
+	const auth = getAuth(app);
+	const ALLOWED_UID = 'z1Zby7PlK3d9h4dJ1pnHAcVB51K2';
+
+	const showApp = () => {
+		document.querySelector(".wrapper").style.display = "flex";
+	}
+
+	const singIn = () => {
+		const email = document.querySelector("#email").value;
+		const password = document.querySelector("#password").value;
+		signInWithEmailAndPassword(auth, email, password)
+			.then((userCredential) => {
+				const user = userCredential.user;
+				console.log("Успішний вхід:", user.uid);
+				showApp();
+
+				// Можеш одразу викликати функцію читання/запису тут
+			})
+			.catch((error) => {
+				document.querySelector(".wrapper").style.display = "none";
+				console.error("Помилка входу:", error.code, error.message);
+			});
+	}
+
+	function loadData() {
+		get(ref(db, 'appData'))
+			.then(snapshot => {
+				if (snapshot.exists()) {
+					appData = snapshot.val();
+					console.log(appData)
+					renderReports();
+				} else {
+					console.log("Дані не знайдено");
+				}
+			})
+			.catch((error) => {
+				console.error("Помилка при зчитуванні:", error);
+			});
+	}
+
+	function saveData() {
+		set(ref(db, 'appData'), appData)
+			.then(() => {
+				console.log("Дані успішно збережено");
+				loadData();  // Знову зчитуємо дані після запису
+			})
+			.catch((error) => {
+				console.error("Помилка при записі:", error);
+			});
+	}
+
+
+	// document.getElementById("logoutBtn").addEventListener("click", () => {
+	// 	signOut(auth)
+	// 		.then(() => {
+	// 			showLogin();
+	// 		})
+	// 		.catch((error) => {
+	// 			console.error("Помилка виходу:", error.message);
+	// 		});
+	// });
+
+	onAuthStateChanged(auth, (user) => {
+		if (user) {
+			if (user.uid === ALLOWED_UID) {
+				console.log("Ввійдено")
+				loadData();
+
+			} else {
+				document.querySelector(".content").style.display = "none";
+				console.log("Недозволений користувач")
+			}
+		} else {
+			// Користувач не увійшов
+			console.log("Користувач не увійшов")
+		}
+	});
+
 	const importFromFile = async (file) => {
 		appData = await readJsonFile(file);
 		renderReports();
+		renderChartYears();
+		changeCurrentChartYear();
 		updateCharts();
 	}
-
+	let currentReport = {};
+	let currentChartYear = '';
 	const investors = appData.investors;
 	const expensesCategories = appData.expensesCategories;
 	const expensesContainer = document.querySelector("#expenses");
 	const reportInputs = [...document.querySelectorAll(".report-input")];
 	const reportDateInput = document.querySelector("#reportDate");
+
+
 
 	const formatToRender = num => num.toFixed(2) + " ₴";
 
@@ -70,16 +172,16 @@ document.addEventListener("DOMContentLoaded", (async () => {
 
 	const createReportHtml = report => {
 		return `
-		<tr>
-			<td>${report.date}</td>
-			<td>${formatToRender(report.mainIncome + report.subIncome)}</td>
-			<td>${formatToRender(report.totalExpenses)}</td>
-			<td>${formatToRender(report.grossProfit)}</td>
-			<td class="reports__btns">
+		<div class="reports__item">
+			<div>${report.date}</div>
+			<div>${formatToRender(report.mainIncome + report.subIncome)}</div>
+			<div>${formatToRender(report.totalExpenses)}</div>
+			<div>${formatToRender(report.grossProfit)}</div>
+			<div class="reports__btns">
 				<button data-id="${report.id}" class="report__open blue"><span class="material-icons-round">launch</span>Переглянути</button>
 				<button data-id="${report.id}" class="report__delete red"><span class="material-icons-round">delete_outline</span></button>
-			</td>
-		</tr>
+			</div>
+		</div>
 	`
 	}
 
@@ -106,6 +208,12 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		`
 	}
 
+	const createChartYearHtml = item => {
+		return `
+			<option value="${item}">${item}</option>
+		`
+	}
+
 	const addExpense = () => {
 		expensesContainer.insertAdjacentHTML("beforeend", createExpenseHtml());
 	}
@@ -116,14 +224,17 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	}
 
 	const renderReports = () => {
-		document.querySelector("#reports tbody").innerHTML = appData.reports.map(createReportHtml).join('');
+		document.querySelector("#reportsContainer").innerHTML = appData.reports.map(item => item).sort((a, b) => new Date(b.date) - new Date(a.date)).map(createReportHtml).join('');
 	}
 
 	const removeReport = btn => {
 		const id = btn.closest(".report__delete").dataset.id;
 		appData.reports = appData.reports.filter(report => report.id !== id);
-		btn.closest("tr").remove();
-		if (id === appData.currentReport.id) closeReport();
+		btn.closest(".reports__item").remove();
+		if (id === currentReport.id) closeReport();
+		renderChartYears();
+		changeCurrentChartYear();
+		updateCharts();
 	}
 
 	const renderReport = report => {
@@ -190,15 +301,6 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		updateReport();
 	}
 
-	const renderExpense = expense => {
-		const expenseElement = document.querySelector("#expenseTemplate").content.cloneNode(true);
-		expenseElement.querySelector(".expenses__date").value = expense.data;
-		expenseElement.querySelector(".expenses__amount").value = expense.amount;
-		expenseElement.querySelector(".expenses__note").value = expense.note;
-		console.log(expenseElement.querySelector(".expenses__date").value)
-		return expenseElement
-	}
-
 	const renderExpenses = expenses => {
 		expensesContainer.innerHTML = expenses.map(createExpenseHtml).join('');
 	}
@@ -207,11 +309,11 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		const report = appData.reports.find(item => item.id === id);
 		reportInputs.forEach(item => item.value = report[item.name]);
 		reportDateInput.value = report.date;
-		renderExpenses(report.expenses);
+		if (report?.expenses) renderExpenses(report.expenses);
 		document.querySelector("#openReport").disabled = false;
 		reportDateInput.disabled = true;
 		openScreen(document.querySelector("#openReport"));
-		appData.currentReport = report;
+		currentReport = report;
 		updateReport();
 	}
 
@@ -221,11 +323,11 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		reportInputs.forEach(input => input.value = input.defaultValue);
 		expensesContainer.innerHTML = "";
 		updateReport();
-		appData.currentReport = {};
+		currentReport = {};
 	}
 
 	const saveReport = () => {
-		const report = appData.currentReport;
+		const report = currentReport;
 		if (appData.reports.find(item => item.id !== report.id && item.date === report.date)) return alert("Звіт з такою датою вже існує")
 		const oldReport = appData.reports.find(item => item.id === report.id);
 		if (oldReport) {
@@ -237,52 +339,65 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		}
 		appData.reports.sort((a, b) => new Date(a.date) - new Date(b.date));
 		renderReports();
+		renderChartYears();
+		changeCurrentChartYear();
+		updateCharts();
+		saveData();
 	}
 
 	const updateReport = () => {
 		const epensesData = getReportExpensesData();
 		const inputData = getReportInputData();
-		appData.currentReport = calculateReport({ id: appData.currentReport.id, ...inputData, expenses: epensesData, date: reportDateInput.value });
-		renderReport(appData.currentReport);
-		updateCharts();
+		currentReport = calculateReport({ id: currentReport.id, ...inputData, expenses: epensesData, date: reportDateInput.value });
+		console.log(currentReport)
+		renderReport(currentReport);
+	}
+
+	const renderChartYears = () => {
+		const years = Array.from(new Set(appData.reports.map(item => item.date.split('-')[0]))).sort((a, b) => b - a);
+		document.querySelector("#chartYears").innerHTML = years.map(createChartYearHtml).join('');
 	}
 
 	const updateCharts = () => {
-		chart.data.labels = appData.reports.map(item => item.date);
-		chart.data.datasets[0].data = appData.reports.map(item => item.grossProfit);
-		chart.update();
+		document.querySelector("#openCharts").disabled = false;
+		if (appData.reports.length === 0) document.querySelector("#openCharts").disabled = true;
+		charts.forEach(item => updateChart({ data: getReportsByYear(currentChartYear), ...item }));
 	}
 
-	const createChart = (redraw) => {
-		const ctx = document.getElementById('myChart');
-		const data = appData.reports.map(item => item.grossProfit)
-		const labels = appData.reports.map(item => item.date)
-		return new Chart(ctx, {
-			type: 'bar',
-			data: {
-				labels: labels,
-				datasets: [
-					{
-						label: 'прибуток',
-						data: data,
-						borderWidth: 1,
-						backgroundColor: '#3498db',
-					},
-				]
-			},
-			options: {
-				scales: {
-					y: {
-						beginAtZero: true
-					}
-				}
-			}
-		});
+	const getReportsByYear = year => {
+		return appData.reports.filter(item => item.date.split('-')[0] === year)
 	}
 
-	const chart = createChart();
-	// chart.destroy();
+	const changeCurrentChartYear = () => {
+		currentChartYear = document.querySelector("#chartYears").value;
+		updateCharts();
+	}
 
+	const charts = [
+		{
+			elem: document.querySelector('#grossProfitChart'),
+			dataKey: 'grossProfit',
+			label: 'Прибуток',
+			labelsKey: 'date',
+			backgroundColor: '#29b95e',
+		},
+		{
+			elem: document.querySelector('#totalExpensesChart'),
+			dataKey: 'totalExpenses',
+			label: 'Витрати',
+			labelsKey: 'date',
+			backgroundColor: '#b9293c',
+		},
+		{
+			elem: document.querySelector('#revenueChart'),
+			dataKey: 'mainIncome',
+			label: 'Дохід',
+			labelsKey: 'date',
+			backgroundColor: '#b98729',
+		},
+	];
+
+	charts.forEach(item => item.chart = createChart({ data: appData.reports, ...item }));
 
 	[expensesContainer, ...reportInputs, reportDateInput].forEach(item => item.addEventListener("change", updateReport));
 	document.querySelector(".add-expense").addEventListener("click", addExpense);
@@ -291,7 +406,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	});
 	document.querySelector('#printReport').addEventListener("click", () => openPrintWindow(appData));
 	document.querySelector('#saveReport').addEventListener("click", saveReport);
-	document.querySelector("#reports tbody").addEventListener("click", (event) => {
+	document.querySelector("#reportsContainer").addEventListener("click", (event) => {
 		if (event.target.closest(".report__open")) openReport(event.target.closest(".report__open").dataset.id);
 		if (event.target.closest(".report__delete")) removeReport(event.target);
 	})
@@ -300,4 +415,6 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	document.querySelector("#createReport").addEventListener("click", createNewReport);
 	document.querySelector("#closeReport").addEventListener("click", closeReport);
 	document.querySelectorAll(".sidebar__btn").forEach(item => item.addEventListener("click", (event) => openScreen(event.target)));
+	document.querySelector("#chartYears").addEventListener("change", changeCurrentChartYear);
+	document.querySelector("#login").addEventListener("click", singIn);
 })())
