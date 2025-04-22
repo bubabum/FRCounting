@@ -64,7 +64,7 @@ body {
 	margin: 0;
 	font-size: 100%;
 	line-height: 1;
-	font-size: 14px;
+	font-size: 12px;
 	-ms-text-size-adjust: 100%;
 	-moz-text-size-adjust: 100%;
 	-webkit-text-size-adjust: 100%;
@@ -145,6 +145,15 @@ button {
 	transition: 0.3s ease-in-out;
 }
 
+button span.material-icons-round {
+	margin-right: 5px;
+}
+
+button.report__delete span.material-icons-round,
+button.expenses__delete span.material-icons-round {
+	margin-right: 0px;
+}
+
 .create-report {
 	margin-top: 40px;
 }
@@ -194,8 +203,10 @@ input[type="month"] {
 	border: 1px solid #E0E0E0;
 	border-radius: 8px;
 	padding: 10px 10px;
-	font-size: 14px;
+	font-family: "Inter", sans-serif;
+	font-size: 12px;
 	font-weight: 600;
+	line-height: 1;
 	color: #2C2C2C;
 	box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
 	outline: none;
@@ -213,6 +224,42 @@ input[type="month"]:focus {
 input[name="date"] {
 	max-width: 180px;
 }
+
+input[name="date"]:disabled {
+	opacity: 0.5;
+}
+
+input[type="file"] {
+	margin-bottom: 20px;
+	height: 40px;
+	font-weight: 500;
+}
+
+input[type="file"]::file-selector-button {
+
+	padding: 5px 15px;
+	font-size: 14px;
+	height: 40px;
+	font-weight: 500;
+	font-family: "Inter", sans-serif;
+	cursor: pointer;
+	background-color: var(--blue-color);
+	color: #FFFFFF;
+	border: none;
+	border-radius: 8px;
+	margin-right: 16px;
+	transition: background-color 200ms;
+}
+
+input[type="file"]::file-selector-button:hover {
+	background-color: var(--blue-light-color);
+}
+
+/* file upload button active state */
+input[type="file"]::file-selector-button:active {
+	background-color: var(--blue-light-color);
+}
+
 
 .wrapper {
 	width: 100%;
@@ -358,16 +405,18 @@ input[name="date"] {
 }
 
 .content__section h2 {
-	font-size: 20px;
+	font-size: 16px;
 	margin-bottom: 25px;
 }
 
 .content__number {
-	font-size: 32px;
+	font-size: 20px;
 	font-weight: 700;
 	color: #333333;
 	letter-spacing: 1px;
-	margin: 10px 0;
+	/* margin: 10px 0; */
+	padding: 8.5px 0;
+	line-height: 1;
 }
 
 .report-buttons {
@@ -410,6 +459,10 @@ input[name="date"] {
 	width: 100%;
 	gap: 10px;
 	margin-bottom: 10px;
+}
+
+.expenses__delete {
+	padding: 5px 10px;
 }
 
 .expenses input[type="number"],
@@ -470,6 +523,10 @@ tbody td {
 
 .reports span {
 	font-size: 14px;
+}
+
+.chart {
+	max-width: 800px;
 }
 
 

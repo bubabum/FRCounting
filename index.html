@@ -10,8 +10,8 @@
 	<!-- <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> -->
 	<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="./css/index.css">
-	<link rel="shortcut icon" href="./img/logo1.png">
-	<title>AccounterHelper</title>
+	<link rel="shortcut icon" href="./img/logo.svg">
+	<title>FRCounting</title>
 </head>
 
 <body>
@@ -33,6 +33,11 @@
 				<span class="material-icons-round chevron">chevron_right</span>
 			</button>
 			<button data-screen="export" class="sidebar__btn">
+				<span class="material-icons-round">file_download</span>
+				<span class="btn-title">Експорт</span>
+				<span class="material-icons-round chevron">chevron_right</span>
+			</button>
+			<button data-screen="charts" class="sidebar__btn">
 				<span class="material-icons-round">file_download</span>
 				<span class="btn-title">Експорт</span>
 				<span class="material-icons-round chevron">chevron_right</span>
@@ -138,27 +143,31 @@
 			<div id="import" class="content__screen">
 				<div class="content__title">Імпорт</div>
 				<div class="content__page">
-					<input id="file" type="file" accept=".json">
-					<button id="importFromFile" class="blue"><span class="material-icons-round">add</span>Імпорт</button>
+					<div class="content__seсtion">
+						<input id="file" type="file" accept=".json">
+						<button id="importFromFile" class="blue"><span class="material-icons-round">file_upload</span>Імпорт</button>
+					</div>
 				</div>
 			</div>
 			<div id="export" class="content__screen">
 				<div class="content__title">Експорт</div>
 				<div class="content__page">
-					<button id="saveToFile" class="blue"><span class="material-icons-round">add</span>Експорт</button>
+					<div class="content__seсtion">
+						<button id="saveToFile" class="blue"><span class="material-icons-round">file_download</span>Експорт</button>
+					</div>
+				</div>
+			</div>
+			<div id="charts" class="content__screen">
+				<div class="content__title">Графік</div>
+				<div class="content__page">
+					<div class="chart">
+						<canvas id="myChart"></canvas>
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-	<template id="expenseTemplate">
-		<div class="expenses__item">
-			<input class="expenses__date" type="date" name="date">
-			<input class="expenses__amount" type="number" value="0" min="0" name="amount">
-			<select class="expenses__category" name="category"></select>
-			<input class="expenses__note" type="text" name="note">
-			<button class="expenses__delete red"><span class="material-icons-round">delete_outline</span></button>
-		</div>
-	</template>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	<script type="module" src="./js/index.js"></script>
 </body>
 

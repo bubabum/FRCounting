@@ -1,4 +1,4 @@
-const createExpenseTable = (printReport) => {
+const createExpenseTable = (printReport, expensesCategories) => {
 	return printReport.expenses.map((item, i) => `
 		<tr>
 			<td>${i + 1}</td>
@@ -26,13 +26,13 @@ const fillTemplate = (template, data) => {
 	}, template)
 }
 
-export async function openPrintWindow(report) {
+export async function openPrintWindow({ currentReport, expensesCategories }) {
 	const printWindow = window.open('', '_blank', 'width=794,height=1123'); // A4 в пікселях при 96dpi
-	report.expensesTable = createExpenseTable(report);
-	report.dividentsTable = createDividentsTable(report);
+	currentReport.expensesTable = createExpenseTable(currentReport, expensesCategories);
+	currentReport.dividentsTable = createDividentsTable(currentReport);
 	const printTemplate = await fetch("./templates/print.html");
 	const printTemplateHtml = await printTemplate.text();
-	const printHtml = fillTemplate(printTemplateHtml, report);
+	const printHtml = fillTemplate(printTemplateHtml, currentReport);
 	printWindow.document.open();
 	printWindow.document.write(printHtml);
 	printWindow.document.close();

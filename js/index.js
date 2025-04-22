@@ -46,18 +46,18 @@ document.addEventListener("DOMContentLoaded", (async () => {
 			},
 		],
 		currentReport: {},
-		currentReportId: "",
 	}
 	const importFromFile = async (file) => {
 		appData = await readJsonFile(file);
 		renderReports();
+		updateCharts();
 	}
 
-	let currentReportId = "";
-	const currentReport = {};
 	const investors = appData.investors;
 	const expensesCategories = appData.expensesCategories;
-	const reportInputs = document.querySelectorAll(".report-input");
+	const expensesContainer = document.querySelector("#expenses");
+	const reportInputs = [...document.querySelectorAll(".report-input")];
+	const reportDateInput = document.querySelector("#reportDate");
 
 	const formatToRender = num => num.toFixed(2) + " ₴";
 
@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		btn.closest(".sidebar__btn").classList.add("active");
 	}
 
-	const createReportHtml = (report) => {
+	const createReportHtml = report => {
 		return `
 		<tr>
 			<td>${report.date}</td>
@@ -83,12 +83,16 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	`
 	}
 
+	const createSelectHtml = () => {
+		return expensesCategories.map(item => `<option value="${item.id}">${item.category}</option>`).join('')
+	}
+
 	const createExpenseHtml = () => {
 		return `
 		<div class="expenses__item">
-			<input class="expenses__date" type="date" name="date">
+			<input class="expenses__date" type="date" name="date" value="${new Date().toISOString().split('T')[0]}">
 			<input class="expenses__amount" type="number" value="0" min="0" name="amount">
-			<select class="expenses__category" name="category"></select>
+			<select class="expenses__category" name="category">${createSelectHtml()}</select>
 			<input class="expenses__note" type="text" name="note">
 			<button class="expenses__delete red"><span class="material-icons-round">delete_outline</span></button>
 		</div>
@@ -103,16 +107,12 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	}
 
 	const addExpense = () => {
-		document.querySelector("#expenses").appendChild(document.querySelector("#expenseTemplate").content.cloneNode(true));
-		[...document.querySelectorAll(".expenses .expenses__category")].pop().insertAdjacentHTML("beforeend", `
-			${expensesCategories.map(item => `<option value="${item.id}">${item.category}</option>`).join('')}
-		`);
-		[...document.querySelectorAll(".expenses .expenses__date")].pop().valueAsDate = new Date();
+		expensesContainer.insertAdjacentHTML("beforeend", createExpenseHtml());
 	}
 
 	const removeExpense = (btn) => {
 		btn.closest(".expenses__item").remove();
-		renderReport(calculateReport());
+		updateReport();
 	}
 
 	const renderReports = () => {
@@ -125,26 +125,18 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		const id = btn.closest(".report__delete").dataset.id;
 		appData.reports = appData.reports.filter(report => report.id !== id);
 		btn.closest("tr").remove();
-		if (id === currentReportId) closeReport();
+		if (id === appData.currentReport.id) closeReport();
 	}
 
-	const renderReport = ({ currentReport }) => {
-		document.querySelector("#totalExpenses").textContent = formatToRender(currentReport.totalExpenses);
-		document.querySelector("#grossProfit").textContent = formatToRender(currentReport.grossProfit);
-		document.querySelector("#balance").textContent = formatToRender(currentReport.balance);
+	const renderReport = report => {
+		document.querySelector("#totalExpenses").textContent = formatToRender(report.totalExpenses);
+		document.querySelector("#grossProfit").textContent = formatToRender(report.grossProfit);
+		document.querySelector("#balance").textContent = formatToRender(report.balance);
 		document.querySelector(".divivdents").innerHTML = "";
-		currentReport.dividents.forEach(item => {
+		report.dividents.forEach(item => {
 			document.querySelector(".divivdents").insertAdjacentHTML("beforeend", createDividentHtml(item))
 		});
-		document.querySelector("#restBalance").textContent = formatToRender(currentReport.restBalance);
-	}
-
-	const createExpense = (elem) => {
-		const expense = {};
-		elem.querySelectorAll("input, select").forEach(item => {
-			expense[item.name] = item.type === "number" ? Number(item.value) : item.value;
-		})
-		return expense
+		document.querySelector("#restBalance").textContent = formatToRender(report.restBalance);
 	}
 
 	const validateDividentsAmount = report => {
@@ -167,27 +159,30 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		return expenses.map(item => item.amount).reduce((acc, cur) => acc + cur, 0);
 	}
 
-	const getReportInputData = () => {
-		const report = {};
-		reportInputs.forEach(item => {
-			report[item.name] = Number(item.value);
-		});
-		return report
+	const keepStringOrToNumber = (input) => {
+		return input.type === 'number' ? Number(input.value) : input.value
 	}
 
-	const calculateReport = (inputData) => {
-		reportInputs.forEach(item => {
-			currentReport[item.name] = item.type === "number" ? Number(item.value) : item.value;
-		});
-		currentReport.expenses = [];
-		document.querySelectorAll(".expenses__item").forEach(item => currentReport.expenses.push(createExpense(item)));
-		currentReport.totalExpenses = getTotalExpenses(currentReport);
-		currentReport.grossProfit = currentReport.mainIncome + currentReport.subIncome - currentReport.productionCosts - currentReport.goodsCosts;
-		currentReport.balance = currentReport.mainIncome + currentReport.subIncome + currentReport.initialBalance - currentReport.totalExpenses;
-		validateDividentsAmount(currentReport);
-		currentReport.dividents = calculateDividents(currentReport);
-		currentReport.restBalance = currentReport.mainIncome + currentReport.subIncome + currentReport.initialBalance - currentReport.totalExpenses - currentReport.dividentsAmount;
-		return currentReport
+	const createExpense = elem => {
+		return Object.fromEntries(Array.from(elem.querySelectorAll("input, select"), input => [input.name, keepStringOrToNumber(input)]))
+	}
+
+	const getReportExpensesData = () => {
+		return Array.from(expensesContainer.children, item => createExpense(item));
+	}
+
+	const getReportInputData = () => {
+		return Object.fromEntries(reportInputs.map(input => [input.name, Number(input.value)]))
+	}
+
+	const calculateReport = report => {
+		report.totalExpenses = getTotalExpenses(report);
+		report.grossProfit = report.mainIncome + report.subIncome - report.productionCosts - report.goodsCosts;
+		report.balance = report.mainIncome + report.subIncome + report.initialBalance - report.totalExpenses;
+		validateDividentsAmount(report);
+		report.dividents = calculateDividents(report);
+		report.restBalance = report.mainIncome + report.subIncome + report.initialBalance - report.totalExpenses - report.dividentsAmount;
+		return report
 	}
 
 	const setDefaultReportDate = () => {
@@ -197,54 +192,67 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	const createNewReport = () => {
 		openScreen(document.querySelector("#openReport"));
 		document.querySelector("#openReport").disabled = false;
-		appData.currentReport = {
-			expenses: [],
-			dividents: [],
-			totalExpenses: 0,
-			grossProfit: 0,
-			balance: 0,
-			restBalance: 0,
-		}
-		renderReport(appData);
+		reportDateInput.disabled = false;
+		setDefaultReportDate();
+		const lastReport = appData.reports.slice(-1).pop();
+		document.querySelector("input[name=initialBalance]").value = lastReport?.restBalance || 0;
+		updateReport();
 	}
 
-	const openReport = (id) => {
+	const renderExpense = expense => {
+		const expenseElement = document.querySelector("#expenseTemplate").content.cloneNode(true);
+		expenseElement.querySelector(".expenses__date").value = expense.data;
+		expenseElement.querySelector(".expenses__amount").value = expense.amount;
+		expenseElement.querySelector(".expenses__note").value = expense.note;
+		console.log(expenseElement.querySelector(".expenses__date").value)
+		return expenseElement
+	}
+
+	const renderExpenses = expenses => {
+		expenses.forEach(expense => expensesContainer.insertAdjacentHTML("beforeend", createExpenseHtml(expense)))
+	}
+
+	const openReport = id => {
 		const report = appData.reports.find(item => item.id === id);
 		reportInputs.forEach(item => item.value = report[item.name]);
-		report.expenses.forEach(item => {
-			document.querySelector("#expenses").insertAdjacentHTML("beforeend", `
-				<div class="expenses__item">
-					<input class="expenses__date" type="date" name="date" value="${item.date}">
-					<input class="expenses__amount" type="number" value="${item.amount}" min="0" name="amount">
-					<select class="expenses__category" name="category"></select>
-					<input class="expenses__note" type="text" name="note" value="${item.note}">
-					<button class="expenses__delete red"><span class="material-icons-round">delete_outline</span></button>
-				</div>
-				`);
-		});
-		[...document.querySelectorAll(".expenses .expenses__category")].forEach((item, index) => {
-			item.insertAdjacentHTML("beforeend", `
-				${expensesCategories.map((category, i) => `<option ${(Number(report.expenses[index].category) === category.id ? "selected" : "")} value="${category.id}">${category.category}</option>`).join('')}
-			`);
-		})
-		renderReport(calculateReport());
+		reportDateInput.value = report.date;
+		renderExpenses(report.expenses)
+
+		// report.expenses.forEach(item => {
+		// 	expensesContainer.insertAdjacentHTML("beforeend", `
+		// 		<div class="expenses__item">
+		// 			<input class="expenses__date" type="date" name="date" value="${item.date}">
+		// 			<input class="expenses__amount" type="number" value="${item.amount}" min="0" name="amount">
+		// 			<select class="expenses__category" name="category"></select>
+		// 			<input class="expenses__note" type="text" name="note" value="${item.note}">
+		// 			<button class="expenses__delete red"><span class="material-icons-round">delete_outline</span></button>
+		// 		</div>
+		// 		`);
+		// });
+		// [...document.querySelectorAll(".expenses .expenses__category")].forEach((item, index) => {
+		// 	item.insertAdjacentHTML("beforeend", `
+		// 		${expensesCategories.map((category, i) => `<option ${(Number(report.expenses[index].category) === category.id ? "selected" : "")} value="${category.id}">${category.category}</option>`).join('')}
+		// 	`);
+		// })
+
 		document.querySelector("#openReport").disabled = false;
+		reportDateInput.disabled = true;
 		openScreen(document.querySelector("#openReport"));
-		currentReportId = report.id;
+		appData.currentReport = report;
+		updateReport();
 	}
 
 	const closeReport = () => {
 		openScreen(document.querySelector("#reportList"));
 		document.querySelector("#openReport").disabled = true;
 		reportInputs.forEach(input => input.value = input.defaultValue);
-		setDefaultReportDate();
-		document.querySelector("#expenses").innerHTML = "";
-		renderReport(appData);
-		currentReportId = "";
+		expensesContainer.innerHTML = "";
+		updateReport();
+		appData.currentReport = {};
 	}
 
 	const saveReport = () => {
-		const report = calculateReport(appData);
+		const report = appData.currentReport;
 		if (appData.reports.find(item => item.id !== report.id && item.date === report.date)) return alert("Звіт з такою датою вже існує")
 		const oldReport = appData.reports.find(item => item.id === report.id);
 		if (oldReport) {
@@ -252,7 +260,6 @@ document.addEventListener("DOMContentLoaded", (async () => {
 			appData.reports[oldReportIndex] = report;
 		} else {
 			report.id = crypto.randomUUID();
-			currentReportId = report.id;
 			appData.reports.push(report);
 		}
 		appData.reports.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -260,19 +267,61 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	}
 
 	const updateReport = () => {
+		const epensesData = getReportExpensesData();
 		const inputData = getReportInputData();
-		appData.currentReport = calculateReport(inputData);
-		renderReport(appData);
+		appData.currentReport = calculateReport({ id: appData.currentReport.id, ...inputData, expenses: epensesData, date: reportDateInput.value });
+		renderReport(appData.currentReport);
+		updateCharts();
 	}
 
-	setDefaultReportDate();
+	const updateCharts = () => {
+		chart.data.labels = appData.reports.map(item => item.date);
+		chart.data.datasets[0].data = appData.reports.map(item => item.grossProfit);
+		chart.update();
+	}
 
-	[document.querySelector("#expenses"), ...reportInputs].forEach(item => item.addEventListener("change", updateReport))
+	const createChart = (redraw) => {
+		const ctx = document.getElementById('myChart');
+		const data = appData.reports.map(item => item.grossProfit)
+		const labels = appData.reports.map(item => item.date)
+		return new Chart(ctx, {
+			type: 'bar',
+			data: {
+				labels: labels,
+				datasets: [
+					{
+						label: 'прибуток',
+						data: data,
+						borderWidth: 1,
+						backgroundColor: '#3498db',
+					},
+					{
+						label: 'прибуток',
+						data: appData.reports.map(item => item.totalExpenses),
+						borderWidth: 1,
+					},
+				]
+			},
+			options: {
+				scales: {
+					y: {
+						beginAtZero: true
+					}
+				}
+			}
+		});
+	}
+
+	const chart = createChart();
+	// chart.destroy();
+
+
+	[expensesContainer, ...reportInputs, reportDateInput].forEach(item => item.addEventListener("change", updateReport));
 	document.querySelector(".add-expense").addEventListener("click", addExpense);
 	document.querySelector(".expenses").addEventListener("click", (event) => {
 		if (event.target.closest(".expenses__delete")) removeExpense(event.target);
 	});
-	document.querySelector('#printReport').addEventListener("click", () => openPrintWindow(calculateReport()));
+	document.querySelector('#printReport').addEventListener("click", () => openPrintWindow(appData));
 	document.querySelector('#saveReport').addEventListener("click", saveReport);
 	document.querySelector("#reports tbody").addEventListener("click", (event) => {
 		if (event.target.closest(".report__open")) openReport(event.target.closest(".report__open").dataset.id);
