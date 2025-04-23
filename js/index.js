@@ -3,10 +3,9 @@ import { readJsonFile } from "./import.js"
 import { saveToFile } from "./export.js"
 import { openPrintWindow } from "./print.js"
 import { createChart, updateChart } from "./chart.js"
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
-import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+import { initAuthListener, login, logout } from "./auth.js"
+import { loadData, saveData } from "./db.js"
+
 document.addEventListener("DOMContentLoaded", (async () => {
 	let appData = {
 		reports: [],
@@ -52,97 +51,34 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		],
 	}
 
-	const firebaseConfig = {
-		apiKey: "AIzaSyDkAtXqSTMvbHhP9zKpg8eCneH4iflZdZI",
-		authDomain: "frcounting.firebaseapp.com",
-		databaseURL: "https://frcounting-default-rtdb.europe-west1.firebasedatabase.app",
-		projectId: "frcounting",
-		storageBucket: "frcounting.firebasestorage.app",
-		messagingSenderId: "1055777877517",
-		appId: "1:1055777877517:web:5deb415ed6206879c3ef44",
-		measurementId: "G-JQENMKDRKS"
-	};
-
-	const app = initializeApp(firebaseConfig);
-	const analytics = getAnalytics(app);
-	const db = getDatabase(app);
-	const auth = getAuth(app);
-	const ALLOWED_UID = 'z1Zby7PlK3d9h4dJ1pnHAcVB51K2';
-
-	const showApp = () => {
-		document.querySelector(".wrapper").style.display = "flex";
-	}
-
-	const singIn = () => {
+	const logIn = async () => {
 		const email = document.querySelector("#email").value;
 		const password = document.querySelector("#password").value;
-		signInWithEmailAndPassword(auth, email, password)
-			.then((userCredential) => {
-				const user = userCredential.user;
-				console.log("Успішний вхід:", user.uid);
-				showApp();
-
-				// Можеш одразу викликати функцію читання/запису тут
-			})
-			.catch((error) => {
-				document.querySelector(".wrapper").style.display = "none";
-				console.error("Помилка входу:", error.code, error.message);
-			});
-	}
-
-	function loadData() {
-		get(ref(db, 'appData'))
-			.then(snapshot => {
-				if (snapshot.exists()) {
-					appData = snapshot.val();
-					console.log(appData)
-					renderReports();
-				} else {
-					console.log("Дані не знайдено");
-				}
-			})
-			.catch((error) => {
-				console.error("Помилка при зчитуванні:", error);
-			});
-	}
-
-	function saveData() {
-		set(ref(db, 'appData'), appData)
-			.then(() => {
-				console.log("Дані успішно збережено");
-				loadData();  // Знову зчитуємо дані після запису
-			})
-			.catch((error) => {
-				console.error("Помилка при записі:", error);
-			});
-	}
-
-
-	// document.getElementById("logoutBtn").addEventListener("click", () => {
-	// 	signOut(auth)
-	// 		.then(() => {
-	// 			showLogin();
-	// 		})
-	// 		.catch((error) => {
-	// 			console.error("Помилка виходу:", error.message);
-	// 		});
-	// });
-
-	onAuthStateChanged(auth, (user) => {
-		if (user) {
-			if (user.uid === ALLOWED_UID) {
-				console.log("Ввійдено")
-				loadData();
-
-			} else {
-				document.querySelector(".content").style.display = "none";
-				console.log("Недозволений користувач")
+		await login(email, password);
+		appData = await loadData("appData");
+		renderReports();
+		console.log(appData)
+		initAuthListener(
+			(user) => {
+				console.log("log in")
+				document.querySelector(".content").classList.add("logged");
+				document.querySelector(".login").classList.add("logged");
+				document.querySelector(".sidebar").classList.add("logged");
+			},
+			() => {
+				document.querySelector(".content").classList.remove("logged")
+				document.querySelector(".login").classList.remove("logged")
+				document.querySelector(".sidebar").classList.remove("logged")
+				console.log("log out")
 			}
-		} else {
-			// Користувач не увійшов
-			console.log("Користувач не увійшов")
-		}
-	});
+		)
+	}
+
+	const logOut = async () => {
+		await logout();
+	}
+
+
 
 	const importFromFile = async (file) => {
 		appData = await readJsonFile(file);
@@ -342,14 +278,13 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		renderChartYears();
 		changeCurrentChartYear();
 		updateCharts();
-		saveData();
+		saveData("appData", appData);
 	}
 
 	const updateReport = () => {
 		const epensesData = getReportExpensesData();
 		const inputData = getReportInputData();
 		currentReport = calculateReport({ id: currentReport.id, ...inputData, expenses: epensesData, date: reportDateInput.value });
-		console.log(currentReport)
 		renderReport(currentReport);
 	}
 
@@ -416,5 +351,6 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	document.querySelector("#closeReport").addEventListener("click", closeReport);
 	document.querySelectorAll(".sidebar__btn").forEach(item => item.addEventListener("click", (event) => openScreen(event.target)));
 	document.querySelector("#chartYears").addEventListener("change", changeCurrentChartYear);
-	document.querySelector("#login").addEventListener("click", singIn);
+	document.querySelector("#login").addEventListener("click", logIn);
+	document.querySelector("#logout").addEventListener("click", logOut);
 })())

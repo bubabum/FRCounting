@@ -15,11 +15,6 @@
 </head>
 
 <body>
-	<div class="login">
-		<input type="email" name="" id="email" value="bubabum.drt@gmail.com">
-		<input type="password" id="password" value="Zauer6822">
-		<button id="login" class="blue">Вхід</button>
-	</div>
 	<div class="wrapper">
 		<div class="sidebar">
 			<button id="reportList" data-screen="reports" class="sidebar__btn active">
@@ -48,12 +43,27 @@
 				<span class="material-icons-round chevron">chevron_right</span>
 			</button>
 		</div>
+		<div class="login">
+			<div class="content__screen active">
+				<div class="content__page">
+					<div class="content__section content__section_center">
+						<div class="login__form">
+							<input type="email" name="" id="email" value="bubabum.drt@gmail.com">
+							<input type="password" id="password" value="Zauer6822">
+							<button id="login" class="blue">Вхід</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
 		<div class="content">
 			<div id="reports" class="content__screen active">
 				<div class="content__title">Звіти</div>
 				<div class="content__page">
 					<div class="content__controls">
 						<button id="createReport" class="reports__add blue"><span class="material-icons-round">create</span>Створити</button>
+						<button id="logout" class="blue">Вихід</button>
 					</div>
 					<div class="content__row">
 						<div class="content__section">
