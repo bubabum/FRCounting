@@ -26,13 +26,13 @@ const fillTemplate = (template, data) => {
 	}, template)
 }
 
-export async function openPrintWindow({ currentReport, expensesCategories }) {
+export async function openPrintWindow(report, expensesCategories) {
 	const printWindow = window.open('', '_blank', 'width=794,height=1123'); // A4 в пікселях при 96dpi
-	currentReport.expensesTable = createExpenseTable(currentReport, expensesCategories);
-	currentReport.dividentsTable = createDividentsTable(currentReport);
+	report.expensesTable = createExpenseTable(report, expensesCategories);
+	report.dividentsTable = createDividentsTable(report);
 	const printTemplate = await fetch("./templates/print.html");
 	const printTemplateHtml = await printTemplate.text();
-	const printHtml = fillTemplate(printTemplateHtml, currentReport);
+	const printHtml = fillTemplate(printTemplateHtml, report);
 	printWindow.document.open();
 	printWindow.document.write(printHtml);
 	printWindow.document.close();

@@ -24,8 +24,8 @@ export async function login(email, password) {
 	try {
 		await signInWithEmailAndPassword(auth, email, password);
 	} catch (error) {
-		alert("Помилка автентифікації")
-		//console.error("Login error:", error);
+		// console.error("Login error:", error);
+		throw error;
 	}
 }
 

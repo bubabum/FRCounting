@@ -31,62 +31,46 @@ document.addEventListener("DOMContentLoaded", (async () => {
 				name: "Кислий М.",
 			},
 		],
-		expensesCategories: [
-			{
-				id: 1,
-				category: "Cировина і матеріали",
-			},
-			{
-				id: 2,
-				category: "Зарплата",
-			},
-			{
-				id: 3,
-				category: "Премія",
-			},
-			{
-				id: 4,
-				category: "Транспортні витрати",
-			},
-		],
+		expensesCategories: [],
 	}
 
-	const logIn = async () => {
+	const authentication = async () => {
 		const email = document.querySelector("#email").value;
 		const password = document.querySelector("#password").value;
-		await login(email, password);
-		appData = await loadData("appData");
-		renderReports();
-		console.log(appData)
-		initAuthListener(
-			(user) => {
-				console.log("log in")
-				document.querySelector(".content").classList.add("logged");
-				document.querySelector(".login").classList.add("logged");
-				document.querySelector(".sidebar").classList.add("logged");
-			},
-			() => {
-				document.querySelector(".content").classList.remove("logged")
-				document.querySelector(".login").classList.remove("logged")
-				document.querySelector(".sidebar").classList.remove("logged")
-				console.log("log out")
-			}
-		)
+		document.querySelector(".login").classList.add("loading")
+		try {
+			await login(email, password);
+			initAuthListener(showApp, hideApp);
+			appData = await loadData("appData");
+			renderApp();
+		} catch (error) {
+			alert("Помилка входу: " + error)
+		} finally {
+			document.querySelector(".login").classList.remove("loading")
+		}
 	}
 
-	const logOut = async () => {
-		await logout();
+	const showApp = () => {
+		document.querySelectorAll(".login, .sidebar, .content").forEach(item => item.classList.add("logged"));
 	}
 
+	const hideApp = () => {
+		document.querySelectorAll(".login, .sidebar, .content").forEach(item => item.classList.remove("logged"));
+	}
 
-
-	const importFromFile = async (file) => {
-		appData = await readJsonFile(file);
+	const renderApp = () => {
 		renderReports();
+		renderExpenseCategories();
 		renderChartYears();
 		changeCurrentChartYear();
 		updateCharts();
 	}
+
+	const importFromFile = async (file) => {
+		appData = await readJsonFile(file);
+		renderApp();
+	}
+
 	let currentReport = {};
 	let currentChartYear = '';
 	const investors = appData.investors;
@@ -94,8 +78,6 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	const expensesContainer = document.querySelector("#expenses");
 	const reportInputs = [...document.querySelectorAll(".report-input")];
 	const reportDateInput = document.querySelector("#reportDate");
-
-
 
 	const formatToRender = num => num.toFixed(2) + " ₴";
 
@@ -121,8 +103,15 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	`
 	}
 
+	//make css
+	const createExpenseCategoryHtml = category => {
+		return `
+			<div class="category__item">${category.id}. ${category.category}</div>
+		`
+	}
+
 	const createSelectHtml = category => {
-		return expensesCategories.map((item, i) => `<option value="${item.id}" ${Number(category) === i + 1 ? "selected" : ""}>${item.category}</option>`).join('')
+		return appData.expensesCategories.map((item, i) => `<option value="${item.id}" ${Number(category) === i + 1 ? "selected" : ""}>${item.category}</option>`).join('')
 	}
 
 	const createExpenseHtml = expense => {
@@ -163,7 +152,12 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		document.querySelector("#reportsContainer").innerHTML = appData.reports.map(item => item).sort((a, b) => new Date(b.date) - new Date(a.date)).map(createReportHtml).join('');
 	}
 
+	const renderExpenseCategories = () => {
+		document.querySelector("#expensesCategories").innerHTML = appData.expensesCategories.map(createExpenseCategoryHtml).join('')
+	}
+
 	const removeReport = btn => {
+		if (!confirm("Видалити звіт?")) return
 		const id = btn.closest(".report__delete").dataset.id;
 		appData.reports = appData.reports.filter(report => report.id !== id);
 		btn.closest(".reports__item").remove();
@@ -274,10 +268,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 			appData.reports.push(report);
 		}
 		appData.reports.sort((a, b) => new Date(a.date) - new Date(b.date));
-		renderReports();
-		renderChartYears();
-		changeCurrentChartYear();
-		updateCharts();
+		renderApp()
 		saveData("appData", appData);
 	}
 
@@ -339,7 +330,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	document.querySelector(".expenses").addEventListener("click", (event) => {
 		if (event.target.closest(".expenses__delete")) removeExpense(event.target);
 	});
-	document.querySelector('#printReport').addEventListener("click", () => openPrintWindow(appData));
+	document.querySelector('#printReport').addEventListener("click", () => openPrintWindow(currentReport, appData.expensesCategories));
 	document.querySelector('#saveReport').addEventListener("click", saveReport);
 	document.querySelector("#reportsContainer").addEventListener("click", (event) => {
 		if (event.target.closest(".report__open")) openReport(event.target.closest(".report__open").dataset.id);
@@ -351,6 +342,6 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	document.querySelector("#closeReport").addEventListener("click", closeReport);
 	document.querySelectorAll(".sidebar__btn").forEach(item => item.addEventListener("click", (event) => openScreen(event.target)));
 	document.querySelector("#chartYears").addEventListener("change", changeCurrentChartYear);
-	document.querySelector("#login").addEventListener("click", logIn);
-	document.querySelector("#logout").addEventListener("click", logOut);
+	document.querySelector("#login").addEventListener("click", authentication);
+	document.querySelector("#logout").addEventListener("click", logout);
 })())

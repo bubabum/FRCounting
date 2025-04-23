@@ -20,7 +20,7 @@ export const saveData = (key, data) => {
 	set(ref(db, key), data)
 		.then(() => {
 			console.log("Дані успішно збережено");
-			loadData();  // Знову зчитуємо дані після запису
+			//loadData();  // Знову зчитуємо дані після запису
 		})
 		.catch((error) => {
 			console.error("Помилка при записі:", error);
