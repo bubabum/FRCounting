@@ -169,6 +169,10 @@ button.red:hover {
 	background-color: var(--red-light-color);
 }
 
+button.hidden {
+	display: none;
+}
+
 label {
 	display: block;
 	margin-bottom: 5px;
@@ -222,8 +226,11 @@ input[name="date"] {
 	max-width: 180px;
 }
 
-input[name="date"]:disabled {
+input:disabled {
 	opacity: 0.5;
+	/* border: none;
+	box-shadow: none;
+	font-size: 14px; */
 }
 
 input[type="file"] {
@@ -307,6 +314,7 @@ input[type="file"]::file-selector-button:active {
 	display: none;
 	flex-direction: column;
 	background-color: #FFFFFF;
+	background-color: #F1F2F7;
 }
 
 .sidebar.logged {
@@ -316,14 +324,17 @@ input[type="file"]::file-selector-button:active {
 .sidebar__btn {
 	display: flex;
 	align-items: center;
+	justify-content: flex-start;
 	margin: 5px 10px;
-	padding: 15px 0px 15px 50px;
-	background-color: #FFFFFF;
-	color: #9197B3;
+	padding: 10px 25px;
+	/* background-color: #FFFFFF; */
+	background-color: #F1F2F7;
+	color: #27324099;
+
 	border: none;
 	border-radius: 8px;
 	font-size: 14px;
-	font-weight: 600;
+	font-weight: 400;
 	text-align: start;
 	letter-spacing: -1%;
 	transition: 0.3s;
@@ -331,13 +342,14 @@ input[type="file"]::file-selector-button:active {
 
 .sidebar__btn span {
 	margin-right: 5px;
+	font-size: 12px;
 }
 
-.sidebar__btn span:last-child {
+/* .sidebar__btn span:last-child {
 	flex-grow: 1;
 	display: flex;
 	justify-content: flex-end;
-}
+} */
 
 .sidebar__btn:hover {
 	background-color: #2471a330;
@@ -353,7 +365,9 @@ input[type="file"]::file-selector-button:active {
 
 .sidebar__btn.active {
 	background-color: #2980b9;
+	background-color: #707FDD1A;
 	color: #FFFFFF;
+	color: #5A6ACF;
 }
 
 .content {
@@ -369,6 +383,7 @@ input[type="file"]::file-selector-button:active {
 
 .content__screen {
 	background-color: #F9F9F9;
+	background-color: #F1F2F7;
 	display: none;
 	flex-direction: column;
 	position: absolute;
@@ -419,11 +434,11 @@ input[type="file"]::file-selector-button:active {
 }
 
 .content__column_60 {
-	width: 50%;
+	width: 60%;
 }
 
 .content__column_40 {
-	width: 50%;
+	width: 40%;
 }
 
 .content__section {
@@ -506,7 +521,17 @@ input[type="file"]::file-selector-button:active {
 	justify-content: space-between;
 	width: 100%;
 	gap: 10px;
-	margin-bottom: 10px;
+	margin: 5px 0;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.expenses__item_grid {
+	display: grid;
+	grid-template-columns: 100px 100px 1fr 1fr;
+	padding: 10px 0;
+	color: #333333;
+	border-bottom: 1px solid #EEEEEE;
 }
 
 .expenses__delete {

@@ -31,32 +31,26 @@
 			<button id="reportList" data-screen="reports" class="sidebar__btn active">
 				<span class="material-icons-round">format_list_bulleted</span>
 				<span class="btn-title">Звіти</span>
-				<span class="material-icons-round chevron">chevron_right</span>
 			</button>
-			<button id="openReport" data-screen="newReport" class="sidebar__btn" disabled>
+			<button id="openReportBtn" data-screen="newReport" class="sidebar__btn" disabled>
 				<span class="material-icons-round">feed</span>
 				<span class="btn-title">Звіт</span>
-				<span class="material-icons-round chevron">chevron_right</span>
 			</button>
 			<button data-screen="expensesScreen" class="sidebar__btn">
 				<span class="material-icons-round">payments</span>
 				<span class="btn-title">Витрати</span>
-				<span class="material-icons-round chevron">chevron_right</span>
 			</button>
 			<button data-screen="import" class="sidebar__btn">
 				<span class="material-icons-round ">file_upload</span>
 				<span class="btn-title">Імпорт</span>
-				<span class="material-icons-round chevron">chevron_right</span>
 			</button>
 			<button data-screen="export" class="sidebar__btn">
 				<span class="material-icons-round">file_download</span>
 				<span class="btn-title">Експорт</span>
-				<span class="material-icons-round chevron">chevron_right</span>
 			</button>
 			<button id="openCharts" data-screen="charts" class="sidebar__btn" disabled>
 				<span class="material-icons-round">bar_chart</span>
 				<span class="btn-title">Графіки</span>
-				<span class="material-icons-round chevron">chevron_right</span>
 			</button>
 		</div>
 		<div class="content">
@@ -152,7 +146,7 @@
 										<label for="">Всього</label>
 										<div id="totalExpenses" class="content__number">0.00 ₴</div>
 									</div>
-									<button class="add-expense blue"><span class="material-icons-round">add</span>Додати</button>
+									<button id="addExpense" class="blue"><span class="material-icons-round">add</span>Додати</button>
 								</div>
 							</div>
 						</div>
@@ -163,7 +157,7 @@
 				<div class="content__title">Витрати</div>
 				<div class="content__page">
 					<div class="content__section">
-						<div id="expensesCategories"></div>
+						<div id="expenseCategories"></div>
 						<div class="add-expense-category">
 							<input id="newExpenseCategory" type="text" name="">
 							<button id="addExpenseCategory" class="blue"><span class="material-icons-round">add</span>Додати</button>
