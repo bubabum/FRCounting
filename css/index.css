@@ -194,8 +194,6 @@ input[type="date"],
 input[type="month"],
 input[type="email"],
 input[type="password"] {
-	flex: 1 1 auto;
-	width: 100%;
 	background-color: #FFFFFF;
 	border: 1px solid #E0E0E0;
 	border-radius: 8px;
@@ -575,6 +573,18 @@ input[type="file"]::file-selector-button:active {
 
 .reports span {
 	font-size: 14px;
+}
+
+.category__item {
+	display: flex;
+	gap: 10px;
+	margin-bottom: 10px;
+}
+
+.add-expense-category {
+	margin-top: 20px;
+	display: flex;
+	gap: 10px;
 }
 
 .chart {

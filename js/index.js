@@ -34,6 +34,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		expensesCategories: [],
 	}
 
+
 	const authentication = async () => {
 		const email = document.querySelector("#email").value;
 		const password = document.querySelector("#password").value;
@@ -106,7 +107,11 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	//make css
 	const createExpenseCategoryHtml = category => {
 		return `
-			<div class="category__item">${category.id}. ${category.category}</div>
+			<div data-id="${category.id}" class="category__item">
+				<input type="text" name="note" value="${category.category}">
+				<button class="category__save blue"><span class="material-icons-round">edit</span></button>
+				<button class="category__delete red"><span class="material-icons-round">delete_outline</span></button>
+			</div>
 		`
 	}
 
@@ -154,6 +159,27 @@ document.addEventListener("DOMContentLoaded", (async () => {
 
 	const renderExpenseCategories = () => {
 		document.querySelector("#expensesCategories").innerHTML = appData.expensesCategories.map(createExpenseCategoryHtml).join('')
+	}
+
+	const addExpenseCategory = () => {
+		const id = appData.expensesCategories.map(item => item.id).sort().pop() + 1 || 1;
+		const category = document.querySelector("#newExpenseCategory").value;
+		if (category.length === 0) return alert("Назва не заповнена")
+		appData.expensesCategories.push({ id, category });
+		saveData("appData", appData);
+		renderExpenseCategories();
+		document.querySelector("#newExpenseCategory").value = "";
+	}
+
+	const changeExpenseCategory = (id, value) => {
+		appData.expensesCategories.find(item => item.id === Number(id)).category = value;
+		saveData("appData", appData);
+	}
+
+	const removeExpenseCategory = (id) => {
+		appData.expensesCategories = appData.expensesCategories.filter(item => item.id !== Number(id));
+		saveData("appData", appData);
+		renderExpenseCategories();
 	}
 
 	const removeReport = btn => {
@@ -239,7 +265,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		const report = appData.reports.find(item => item.id === id);
 		reportInputs.forEach(item => item.value = report[item.name]);
 		reportDateInput.value = report.date;
-		if (report?.expenses) renderExpenses(report.expenses);
+		renderExpenses(report.expenses);
 		document.querySelector("#openReport").disabled = false;
 		reportDateInput.disabled = true;
 		openScreen(document.querySelector("#openReport"));
@@ -265,10 +291,11 @@ document.addEventListener("DOMContentLoaded", (async () => {
 			appData.reports[oldReportIndex] = report;
 		} else {
 			report.id = crypto.randomUUID();
+			report.appDataSnapshot = { expensesCategories: appData.expensesCategories, investors: appData.investors }
 			appData.reports.push(report);
 		}
 		appData.reports.sort((a, b) => new Date(a.date) - new Date(b.date));
-		renderApp()
+		renderApp();
 		saveData("appData", appData);
 	}
 
@@ -342,6 +369,11 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	document.querySelector("#closeReport").addEventListener("click", closeReport);
 	document.querySelectorAll(".sidebar__btn").forEach(item => item.addEventListener("click", (event) => openScreen(event.target)));
 	document.querySelector("#chartYears").addEventListener("change", changeCurrentChartYear);
+	document.querySelector("#addExpenseCategory").addEventListener("click", addExpenseCategory);
+	document.querySelector("#expensesCategories").addEventListener("click", (event) => {
+		if (event.target.closest(".category__save")) changeExpenseCategory(event.target.closest(".category__item").dataset.id, event.target.closest(".category__item").querySelector("input").value);
+		if (event.target.closest(".category__delete")) removeExpenseCategory(event.target.closest(".category__item").dataset.id);
+	});
 	document.querySelector("#login").addEventListener("click", authentication);
 	document.querySelector("#logout").addEventListener("click", logout);
 })())

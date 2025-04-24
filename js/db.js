@@ -7,7 +7,7 @@ export const loadData = async key => {
 	try {
 		const snapshot = await get(ref(db, key));
 		if (snapshot.exists()) {
-			return snapshot.val();
+			return JSON.parse(snapshot.val());
 		} else {
 			console.log("Дані не знайдено");
 		}
@@ -17,7 +17,7 @@ export const loadData = async key => {
 }
 
 export const saveData = (key, data) => {
-	set(ref(db, key), data)
+	set(ref(db, key), JSON.stringify(data))
 		.then(() => {
 			console.log("Дані успішно збережено");
 			//loadData();  // Знову зчитуємо дані після запису
