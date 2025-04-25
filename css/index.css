@@ -155,6 +155,7 @@ button.expenses__delete span.material-icons-round {
 
 button.blue {
 	background-color: var(--blue-color);
+	background-color: #78909c;
 }
 
 button.blue:hover {
@@ -163,6 +164,8 @@ button.blue:hover {
 
 button.red {
 	background-color: var(--red-color);
+	background-color: #757575;
+	border: 1px solid #616161;
 }
 
 button.red:hover {
@@ -313,12 +316,23 @@ input[type="file"]::file-selector-button:active {
 	padding: 50px 0;
 	display: none;
 	flex-direction: column;
+	justify-content: space-between;
 	background-color: #FFFFFF;
-	background-color: #F1F2F7;
+	/* background-color: #F1F2F7; */
 }
 
 .sidebar.logged {
 	display: flex;
+}
+
+.sidebar__logo {
+	display: flex;
+	justify-content: center;
+	font-size: 20px;
+	margin-bottom: 20px;
+	letter-spacing: 1px;
+	font-weight: 600;
+	color: #292D32;
 }
 
 .sidebar__btn {
@@ -328,21 +342,23 @@ input[type="file"]::file-selector-button:active {
 	margin: 5px 10px;
 	padding: 10px 25px;
 	/* background-color: #FFFFFF; */
-	background-color: #F1F2F7;
+	/* background-color: #F1F2F7; */
+	background-color: #FFFFFF;
 	color: #27324099;
+	color: #4D4D4D;
 
 	border: none;
 	border-radius: 8px;
 	font-size: 14px;
-	font-weight: 400;
+	font-weight: 500;
 	text-align: start;
 	letter-spacing: -1%;
 	transition: 0.3s;
 }
 
-.sidebar__btn span {
-	margin-right: 5px;
-	font-size: 12px;
+.sidebar__btn span.material-icons-round {
+	margin-right: 10px;
+	font-size: 20px;
 }
 
 /* .sidebar__btn span:last-child {
@@ -366,8 +382,10 @@ input[type="file"]::file-selector-button:active {
 .sidebar__btn.active {
 	background-color: #2980b9;
 	background-color: #707FDD1A;
+	background-color: #6d6d6d;
+	background-color: #78909c;
 	color: #FFFFFF;
-	color: #5A6ACF;
+	/* color: #5A6ACF; */
 }
 
 .content {
@@ -383,7 +401,7 @@ input[type="file"]::file-selector-button:active {
 
 .content__screen {
 	background-color: #F9F9F9;
-	background-color: #F1F2F7;
+	background-color: #EDEDF0;
 	display: none;
 	flex-direction: column;
 	position: absolute;

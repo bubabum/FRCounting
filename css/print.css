@@ -3,6 +3,15 @@
 	size: auto;
 }
 
+@media print {
+	thead {
+		background-color: rgb(225, 225, 225) !important;
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+	}
+
+}
+
 body {
 	font-family: Arial, sans-serif;
 	margin: 10mm;

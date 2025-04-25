@@ -44,6 +44,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 			initAuthListener(showApp, hideApp);
 			// saveData("appData", appData)
 			appData = await loadData("appData");
+			console.log(appData)
 			renderApp();
 		} catch (error) {
 			alert("Помилка входу: " + error)

@@ -28,30 +28,42 @@
 			</div>
 		</div>
 		<div class="sidebar">
-			<button id="reportList" data-screen="reports" class="sidebar__btn active">
-				<span class="material-icons-round">format_list_bulleted</span>
-				<span class="btn-title">Звіти</span>
-			</button>
-			<button id="openReportBtn" data-screen="newReport" class="sidebar__btn" disabled>
-				<span class="material-icons-round">feed</span>
-				<span class="btn-title">Звіт</span>
-			</button>
-			<button data-screen="expensesScreen" class="sidebar__btn">
-				<span class="material-icons-round">payments</span>
-				<span class="btn-title">Витрати</span>
-			</button>
-			<button data-screen="import" class="sidebar__btn">
-				<span class="material-icons-round ">file_upload</span>
-				<span class="btn-title">Імпорт</span>
-			</button>
-			<button data-screen="export" class="sidebar__btn">
-				<span class="material-icons-round">file_download</span>
-				<span class="btn-title">Експорт</span>
-			</button>
-			<button id="openCharts" data-screen="charts" class="sidebar__btn" disabled>
-				<span class="material-icons-round">bar_chart</span>
-				<span class="btn-title">Графіки</span>
-			</button>
+			<div class="sidebar__header">
+				<div class="sidebar__logo">FRCounting</div>
+				<div class="sidebar__menu">
+					<button id="reportList" data-screen="reports" class="sidebar__btn active">
+						<span class="material-icons-round">format_list_bulleted</span>
+						<span class="btn-title">Звіти</span>
+					</button>
+					<button id="openReportBtn" data-screen="newReport" class="sidebar__btn" disabled>
+						<span class="material-icons-round">feed</span>
+						<span class="btn-title">Звіт</span>
+					</button>
+					<button data-screen="expensesScreen" class="sidebar__btn">
+						<span class="material-icons-round">payments</span>
+						<span class="btn-title">Витрати</span>
+					</button>
+					<button data-screen="import" class="sidebar__btn">
+						<span class="material-icons-round ">file_upload</span>
+						<span class="btn-title">Імпорт</span>
+					</button>
+					<button data-screen="export" class="sidebar__btn">
+						<span class="material-icons-round">file_download</span>
+						<span class="btn-title">Експорт</span>
+					</button>
+					<button id="openCharts" data-screen="charts" class="sidebar__btn" disabled>
+						<span class="material-icons-round">bar_chart</span>
+						<span class="btn-title">Графіки</span>
+					</button>
+				</div>
+			</div>
+			<div class="sidebar__footer">
+				<button id="logout" class="sidebar__btn">
+					<span class="material-icons-round">logout</span>
+					<span class="btn-title">Вихід</span>
+				</button>
+				<!-- <button id="logout" class="blue">Вихід</button> -->
+			</div>
 		</div>
 		<div class="content">
 			<div id="reports" class="content__screen active">
@@ -59,7 +71,6 @@
 				<div class="content__page">
 					<div class="content__controls">
 						<button id="createReport" class="reports__add blue"><span class="material-icons-round">create</span>Створити</button>
-						<button id="logout" class="blue">Вихід</button>
 					</div>
 					<div class="content__row">
 						<div class="content__section">
