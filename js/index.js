@@ -12,28 +12,27 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		investors: [
 			{
 				id: 1,
-				percentage: 0.33,
+				percentage: 33,
 				name: "Конаш А.",
 			},
 			{
 				id: 2,
-				percentage: 0.22,
+				percentage: 22,
 				name: "Кислий І.",
 			},
 			{
 				id: 3,
-				percentage: 0.22,
+				percentage: 22,
 				name: "Кислий А.",
 			},
 			{
 				id: 4,
-				percentage: 0.22,
+				percentage: 22,
 				name: "Кислий М.",
 			},
 		],
 		expenseCategories: [],
 	}
-
 
 	const authentication = async () => {
 		const email = document.querySelector("#email").value;
@@ -44,7 +43,8 @@ document.addEventListener("DOMContentLoaded", (async () => {
 			initAuthListener(showApp, hideApp);
 			// saveData("appData", appData)
 			appData = await loadData("appData");
-			console.log(appData)
+			// appData.reports = appData.reports.filter(item => typeof item.totalExpenses === "number")
+			//saveData("appData", appData)
 			renderApp();
 		} catch (error) {
 			alert("Помилка входу: " + error)
@@ -54,6 +54,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	}
 
 	const showApp = () => {
+		openScreen(openReportListBtn);
 		document.querySelectorAll(".login, .sidebar, .content").forEach(item => item.classList.add("logged"));
 	}
 
@@ -64,6 +65,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	const renderApp = () => {
 		renderReports();
 		renderExpenseCategories();
+		renderInvestors();
 		renderChartYears();
 		changeCurrentChartYear();
 		updateCharts();
@@ -76,10 +78,12 @@ document.addEventListener("DOMContentLoaded", (async () => {
 
 	let currentReport = {};
 	let currentChartYear = '';
-	const expensesContainer = document.querySelector("#expenses");
+	const expensesContainer = document.querySelector("#expensesList");
+	const investorsContainer = document.querySelector("#investorsContainer");
 	const reportInputs = [...document.querySelectorAll(".report-input")];
 	const reportDateInput = document.querySelector("#reportDate");
 	const openReportBtn = document.querySelector("#openReportBtn");
+	const openReportListBtn = document.querySelector("#reportListBtn");
 
 	const formatToRender = num => num.toFixed(2) + " ₴";
 
@@ -98,20 +102,29 @@ document.addEventListener("DOMContentLoaded", (async () => {
 			<div>${formatToRender(report.totalExpenses)}</div>
 			<div>${formatToRender(report.grossProfit)}</div>
 			<div class="reports__btns">
-				<button data-id="${report.id}" class="report__open blue"><span class="material-icons-round">launch</span>Переглянути</button>
-				<button data-id="${report.id}" class="report__delete red"><span class="material-icons-round">delete_outline</span></button>
+				<button data-id="${report.id}" class="report__open secondary"><span class="material-symbols-outlined">open_in_new</span>Переглянути</button>
+				<button data-id="${report.id}" class="report__delete secondary"><span class="material-symbols-outlined">delete</span></button>
 			</div>
 		</div>
 	`
 	}
 
-	//make css
 	const createExpenseCategoryHtml = category => {
 		return `
-			<div data-id="${category.id}" class="category__item">
-				<input type="text" name="note" value="${category.category}">
-				<button class="category__save blue"><span class="material-icons-round">edit</span></button>
-				<button class="category__delete red"><span class="material-icons-round">delete_outline</span></button>
+			<div data-id="${category.id}" class="category__item list-item">
+				<input type="text" value="${category.category}">
+				<button class="category__save primary"><span class="material-symbols-outlined">edit</span>Змінити</button>
+				<button class="category__delete secondary"><span class="material-symbols-outlined">delete_outline</span>Видалити</button>
+			</div>
+		`
+	}
+
+	const createInvestorHtml = investor => {
+		return `
+			<div data-id="${investor.id}" class="investor__item list-item">
+				<input type="text" value="${investor.name}" min="0">
+				<input type="number" class="investor__percentage" value="${investor.percentage}" min="0">
+				<button class="investor__delete secondary"><span class="material-symbols-outlined">delete_outline</span>Видалити</button>
 			</div>
 		`
 	}
@@ -127,7 +140,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 				<input class="expenses__amount" type="number" value="0" min="0" name="amount">
 				<select class="expenses__category" name="category">${createSelectHtml()}</select>
 				<input class="expenses__note" type="text" name="note" value="">
-				<button class="expenses__delete red"><span class="material-icons-round">delete_outline</span></button>
+				<button class="expenses__delete secondary"><span class="material-symbols-outlined">delete_outline</span></button>
 			</div>
 		`
 	}
@@ -158,6 +171,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 
 	const addExpense = () => {
 		expensesContainer.insertAdjacentHTML("beforeend", createExpenseInputHtml());
+		updateReport();
 	}
 
 	const removeExpense = (btn) => {
@@ -186,12 +200,42 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	const changeExpenseCategory = (id, value) => {
 		appData.expenseCategories.find(item => item.id === Number(id)).category = value;
 		saveData("appData", appData);
+		alert("Збережено")
 	}
 
-	const removeExpenseCategory = (id) => {
+	const removeExpenseCategory = id => {
+		if (!confirm("Видалити категорію витрат?")) return
 		appData.expenseCategories = appData.expenseCategories.filter(item => item.id !== Number(id));
 		saveData("appData", appData);
 		renderExpenseCategories();
+	}
+
+	const renderInvestors = () => {
+		investorsContainer.innerHTML = appData.investors.map(createInvestorHtml).join('')
+	}
+
+	const addInvestor = () => {
+		const id = appData.investors.map(item => item.id).sort().pop() + 1 || 1;
+		const name = document.querySelector("#newInvestor").value;
+		if (name.length === 0) return alert("Ім'я не заповнене")
+		appData.investors.push({ id, percentage: 0, name });
+		saveData("appData", appData);
+		renderInvestors();
+		document.querySelector("#newInvestor").value = "";
+	}
+
+	const changeInvestors = () => {
+		if ([...document.querySelectorAll(".investor__percentage")].reduce((acc, cur) => acc + Number(cur.value), 0) > 100) return alert("Сума перевищує 100%");
+		appData.investors.forEach(item => item.percentage = Number(document.querySelector(`.investor__item[data-id="${item.id}"] .investor__percentage`).value))
+		saveData("appData", appData);
+		alert("Збережено")
+	}
+
+	const removeInvestor = id => {
+		if (!confirm("Видалити інвестора?")) return
+		appData.investors = appData.investors.filter(item => item.id !== Number(id));
+		saveData("appData", appData);
+		renderInvestors();
 	}
 
 	const renderReportInputs = report => {
@@ -216,11 +260,11 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	}
 
 	const calculateDividents = ({ dividentsAmount, investors }) => {
-		const dividents = investors.map(item => item).sort((a, b) => a.percentage - b.percentage);
+		const dividents = [...investors].sort((a, b) => a.percentage - b.percentage);
 		dividents.forEach((item, i, arr) => {
 			if (dividentsAmount < 1000) return item.amount = 0;
 			if (i === arr.length - 1) return item.amount = dividentsAmount - arr.filter(item => arr.indexOf(item) !== arr.length - 1).reduce((acc, cur) => acc + cur.amount, 0);
-			item.amount = dividentsAmount * item.percentage + 100 - dividentsAmount * item.percentage % 100;
+			item.amount = dividentsAmount * item.percentage / 100 + 100 - dividentsAmount * item.percentage / 100 % 100;
 		});
 		return dividents.sort((a, b) => a.id - b.id)
 	}
@@ -324,7 +368,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 				document.querySelectorAll("#saveReport, #addExpense").forEach(btn => btn.classList.remove("hidden"))
 				break
 			default:
-				openScreen(document.querySelector("#reportList"));
+				openScreen(openReportListBtn);
 				openReportBtn.disabled = true;
 				reportInputs.forEach(input => input.value = input.defaultValue);
 				expensesContainer.innerHTML = "";
@@ -358,21 +402,21 @@ document.addEventListener("DOMContentLoaded", (async () => {
 			dataKey: 'grossProfit',
 			label: 'Прибуток',
 			labelsKey: 'date',
-			backgroundColor: '#29b95e',
+			backgroundColor: '#71C9CE',
 		},
 		{
 			elem: document.querySelector('#totalExpensesChart'),
 			dataKey: 'totalExpenses',
 			label: 'Витрати',
 			labelsKey: 'date',
-			backgroundColor: '#b9293c',
+			backgroundColor: '#4DA8AD',
 		},
 		{
 			elem: document.querySelector('#revenueChart'),
 			dataKey: 'mainIncome',
 			label: 'Дохід',
 			labelsKey: 'date',
-			backgroundColor: '#b98729',
+			backgroundColor: '#34797D',
 		},
 	];
 
@@ -383,7 +427,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	document.querySelector(".expenses").addEventListener("click", (event) => {
 		if (event.target.closest(".expenses__delete")) removeExpense(event.target);
 	});
-	document.querySelector('#printReport').addEventListener("click", () => openPrintWindow(currentReport));
+	document.querySelector('#printReport').addEventListener("click", () => openPrintWindow({ ...currentReport }));
 	document.querySelector('#saveReport').addEventListener("click", saveReport);
 	document.querySelector("#reportsContainer").addEventListener("click", (event) => {
 		if (event.target.closest(".report__open")) openReport(event.target.closest(".report__open").dataset.id);
@@ -391,14 +435,20 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	})
 	document.querySelector('#saveToFile').addEventListener("click", () => saveToFile(appData));
 	document.querySelector('#importFromFile').addEventListener("click", async () => importFromFile(document.querySelector("#file").files[0]));
+	document.querySelector("#saveToCloud").addEventListener("click", () => saveData("appData", appData));
 	document.querySelector("#createReport").addEventListener("click", createNewReport);
 	document.querySelector("#closeReport").addEventListener("click", closeReport);
-	document.querySelectorAll(".sidebar__btn").forEach(item => item.addEventListener("click", (event) => openScreen(event.target)));
+	document.querySelectorAll(".open-screen").forEach(item => item.addEventListener("click", (event) => openScreen(event.target)));
 	document.querySelector("#chartYears").addEventListener("change", changeCurrentChartYear);
 	document.querySelector("#addExpenseCategory").addEventListener("click", addExpenseCategory);
 	document.querySelector("#expenseCategories").addEventListener("click", (event) => {
 		if (event.target.closest(".category__save")) changeExpenseCategory(event.target.closest(".category__item").dataset.id, event.target.closest(".category__item").querySelector("input").value);
 		if (event.target.closest(".category__delete")) removeExpenseCategory(event.target.closest(".category__item").dataset.id);
+	});
+	document.querySelector("#addInvestor").addEventListener("click", addInvestor);
+	document.querySelector("#saveInvestors").addEventListener("click", changeInvestors)
+	investorsContainer.addEventListener("click", (event) => {
+		if (event.target.closest(".investor__delete")) removeInvestor(event.target.closest(".investor__item").dataset.id);
 	});
 	document.querySelector("#login").addEventListener("click", authentication);
 	document.querySelector("#logout").addEventListener("click", logout);
