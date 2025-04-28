@@ -9,10 +9,10 @@ export const loadData = async key => {
 		if (snapshot.exists()) {
 			return JSON.parse(snapshot.val());
 		} else {
-			console.log("Дані не знайдено");
+			throw new Error("Дані не знайдено");
 		}
 	} catch (error) {
-		console.error("Помилка при зчитуванні:", error);
+		throw error
 	}
 }
 
@@ -20,7 +20,6 @@ export const saveData = (key, data) => {
 	set(ref(db, key), JSON.stringify(data))
 		.then(() => {
 			console.log("Дані успішно збережено");
-			//loadData();  // Знову зчитуємо дані після запису
 		})
 		.catch((error) => {
 			console.error("Помилка при записі:", error);

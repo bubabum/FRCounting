@@ -16,7 +16,10 @@
 
 <body>
 	<div class="wrapper">
-		<div class="login">
+		<div class="loader">
+			<span></span>
+		</div>
+		<div class="login logged">
 			<img class="login__img" src="./img/logo.svg" alt="">
 			<div class="login__header">FRCounting</div>
 			<div class="login__form">
@@ -81,7 +84,11 @@
 									<div>Прибуток</div>
 									<div>-</div>
 								</div>
-								<div id="reportsContainer" class="reports__content"></div>
+								<div id="reportsContainer" class="reports__content">
+									<div class="loader">
+										<span></span>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -153,77 +160,6 @@
 							</div>
 						</div>
 					</div>
-					<!-- <div class="content__row">
-						<div class="content__column content__column_40">
-							<div class="content__row">
-								<div class="content__section">
-									<h2>Дохід</h2>
-									<label for="">Дохід (70 рахунок)</label>
-									<input class="report-input" type="number" min="0" value="0" name="mainIncome">
-									<label for="">Додаткові надходження</label>
-									<input class="report-input" type="number" min="0" value="0" name="subIncome">
-								</div>
-								<div class="content__section">
-									<h2>Баланс</h2>
-									<label for="">На початок періоду</label>
-									<input class="report-input" type="number" min="0" value="0" name="initialBalance">
-									<label for="">Поточний</label>
-									<div id="balance" class="content__number">0.00 ₴</div>
-								</div>
-							</div>
-							<div class="content__row">
-								<div class="content__section">
-									<h2>Собівартість</h2>
-									<div class="cost-price">
-										<label for="">Продукції (26 рахунок)</label>
-										<input class="report-input" type="number" min="0" value="0" name="productionCosts">
-										<label for="">Товарів (281 рахунок)</label>
-										<input class="report-input" type="number" min="0" value="0" name="goodsCosts">
-									</div>
-								</div>
-								<div class="content__section">
-									<h2>Прибуток</h2>
-									<label for="">Операційний</label>
-									<div id="grossProfit" class="content__number">0.00 ₴</div>
-									<label for="">Дивіденди</label>
-									<input class="report-input" type="number" min="0" value="0" name="dividentsAmount">
-								</div>
-							</div>
-							<div class="content__row">
-								<div class="content__section content__section_dividents">
-									<div>
-										<h2>Дивіденди</h2>
-										<div class="divivdents"></div>
-									</div>
-									<div>
-										<h2>Залишок на наступний період</h2>
-										<div id="restBalance" class="content__number">0.00 ₴</div>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="content__column content__column_60">
-							<div class="content__controls">
-								<input id="reportDate" class="" type="month" name="date">
-								<div class="report-buttons">
-									<button id="printReport" class="primary"><span class="material-symbols-outlined">print</span>Друк</button>
-									<button id="saveReport" class="primary"><span class="material-symbols-outlined">bookmark</span>Зберегти</button>
-									<button id="closeReport" class="secondary"><span class="material-symbols-outlined">close</span>Закрити</button>
-								</div>
-							</div>
-							<div class="content__section content__section_expenses">
-								<h2>Витрати</h2>
-								<div id="expensesList" class="expenses"></div>
-								<div class="content__footer content__footer_expenses">
-									<div class="expenses-summary">
-										<label for="">Всього</label>
-										<div id="totalExpenses" class="content__number">0.00 ₴</div>
-									</div>
-									<button id="addExpense" class="primary"><span class="material-symbols-outlined">add</span>Додати</button>
-								</div>
-							</div>
-						</div>
-					</div> -->
 				</div>
 			</div>
 			<div id="expenses" class="content__screen">
@@ -269,37 +205,19 @@
 			<div id="charts" class="content__screen">
 				<div class="content__title">Графік</div>
 				<div class="content__page">
-					<div class="content__row">
-						<div class="content__column">
-							<div class="content__row">
-								<div class=" content__section">
-									<label for="">Графіки за:</label>
-									<select id="chartYears" class="" name="chartYears"></select>
-								</div>
-							</div>
+					<div class="content__charts">
+						<div class=" content__section">
+							<label for="">Графіки за:</label>
+							<select id="chartYears" class="" name="chartYears"></select>
 						</div>
-						<div class="content__column">
-							<div class="content__row">
-								<div class="chart content__section">
-									<canvas id="revenueChart"></canvas>
-								</div>
-							</div>
+						<div class="content__section">
+							<canvas id="revenueChart"></canvas>
 						</div>
-					</div>
-					<div class="content__row">
-						<div class="content__column">
-							<div class="content__row">
-								<div class="chart content__section">
-									<canvas id="grossProfitChart"></canvas>
-								</div>
-							</div>
+						<div class="content__section">
+							<canvas id="grossProfitChart"></canvas>
 						</div>
-						<div class="content__column">
-							<div class="content__row">
-								<div class="chart content__section">
-									<canvas id="totalExpensesChart"></canvas>
-								</div>
-							</div>
+						<div class="content__section">
+							<canvas id="totalExpensesChart"></canvas>
 						</div>
 					</div>
 				</div>

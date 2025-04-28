@@ -5,77 +5,14 @@ import { openPrintWindow } from "./print.js"
 import { createChart, updateChart } from "./chart.js"
 import { initAuthListener, login, logout } from "./auth.js"
 import { loadData, saveData } from "./db.js"
+import { app } from "./firebase-config.js"
 
 document.addEventListener("DOMContentLoaded", (async () => {
 	let appData = {
 		reports: [],
-		investors: [
-			{
-				id: 1,
-				percentage: 33,
-				name: "Конаш А.",
-			},
-			{
-				id: 2,
-				percentage: 22,
-				name: "Кислий І.",
-			},
-			{
-				id: 3,
-				percentage: 22,
-				name: "Кислий А.",
-			},
-			{
-				id: 4,
-				percentage: 22,
-				name: "Кислий М.",
-			},
-		],
+		investors: [],
 		expenseCategories: [],
-	}
-
-	const authentication = async () => {
-		const email = document.querySelector("#email").value;
-		const password = document.querySelector("#password").value;
-		document.querySelector(".login").classList.add("loading")
-		try {
-			await login(email, password);
-			initAuthListener(showApp, hideApp);
-			// saveData("appData", appData)
-			appData = await loadData("appData");
-			// appData.reports = appData.reports.filter(item => typeof item.totalExpenses === "number")
-			//saveData("appData", appData)
-			renderApp();
-		} catch (error) {
-			alert("Помилка входу: " + error)
-		} finally {
-			document.querySelector(".login").classList.remove("loading")
-		}
-	}
-
-	const showApp = () => {
-		openScreen(openReportListBtn);
-		document.querySelectorAll(".login, .sidebar, .content").forEach(item => item.classList.add("logged"));
-	}
-
-	const hideApp = () => {
-		document.querySelectorAll(".login, .sidebar, .content").forEach(item => item.classList.remove("logged"));
-	}
-
-	const renderApp = () => {
-		renderReports();
-		renderExpenseCategories();
-		renderInvestors();
-		renderChartYears();
-		changeCurrentChartYear();
-		updateCharts();
-	}
-
-	const importFromFile = async (file) => {
-		appData = await readJsonFile(file);
-		renderApp();
-	}
-
+	};
 	let currentReport = {};
 	let currentChartYear = '';
 	const expensesContainer = document.querySelector("#expensesList");
@@ -86,13 +23,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	const openReportListBtn = document.querySelector("#reportListBtn");
 
 	const formatToRender = num => num.toFixed(2) + " ₴";
-
-	const openScreen = (btn) => {
-		document.querySelectorAll(".content__screen").forEach(item => item.classList.remove("active"));
-		document.querySelector(`#${btn.closest(".sidebar__btn").dataset.screen}`).classList.add("active");
-		document.querySelectorAll(".sidebar__btn").forEach(item => item.classList.remove("active"));
-		btn.closest(".sidebar__btn").classList.add("active");
-	}
+	const safeRound = value => Number(value.toFixed(2));
 
 	const createReportHtml = report => {
 		return `
@@ -289,13 +220,15 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		return Object.fromEntries(reportInputs.map(input => [input.name, Number(input.value)]))
 	}
 
+
+
 	const calculateReport = report => {
 		report.totalExpenses = getTotalExpenses(report);
-		report.grossProfit = report.mainIncome + report.subIncome - report.productionCosts - report.goodsCosts;
-		report.balance = report.mainIncome + report.subIncome + report.initialBalance - report.totalExpenses;
+		report.grossProfit = safeRound(report.mainIncome + report.subIncome - report.productionCosts - report.goodsCosts);
+		report.balance = safeRound(report.mainIncome + report.subIncome + report.initialBalance - report.totalExpenses);
 		validateDividentsAmount(report);
 		report.dividents = calculateDividents(report);
-		report.restBalance = report.mainIncome + report.subIncome + report.initialBalance - report.totalExpenses - report.dividentsAmount;
+		report.restBalance = safeRound(report.mainIncome + report.subIncome + report.initialBalance - report.totalExpenses - report.dividentsAmount);
 		return report
 	}
 
@@ -422,6 +355,75 @@ document.addEventListener("DOMContentLoaded", (async () => {
 
 	charts.forEach(item => item.chart = createChart({ data: appData.reports, ...item }));
 
+	const openScreen = btn => {
+		document.querySelectorAll(".content__screen").forEach(item => item.classList.remove("active"));
+		document.querySelector(`#${btn.closest(".sidebar__btn").dataset.screen}`).classList.add("active");
+		document.querySelectorAll(".sidebar__btn").forEach(item => item.classList.remove("active"));
+		btn.closest(".sidebar__btn").classList.add("active");
+	}
+
+	const renderApp = () => {
+		renderReports();
+		renderExpenseCategories();
+		renderInvestors();
+		renderChartYears();
+		changeCurrentChartYear();
+		updateCharts();
+		// appData.reports.forEach(item => {
+		// 	for (let key in item) {
+		// 		if (typeof item[key] === "number") item[key] = safeRound(item[key])
+		// 	}
+		// })
+		// saveToCloud();
+		// console.log(appData)
+	}
+
+	const showApp = async () => {
+		openScreen(openReportListBtn);
+		document.querySelector(".loader").classList.add("loaded");
+		document.querySelectorAll(".login, .sidebar, .content").forEach(item => item.classList.add("logged"));
+		await initApp();
+	}
+
+	const hideApp = () => {
+		document.querySelector(".loader").classList.add("loaded");
+		document.querySelectorAll(".login, .sidebar, .content").forEach(item => item.classList.remove("logged"));
+	}
+
+	const authentication = async () => {
+		const email = document.querySelector("#email").value;
+		const password = document.querySelector("#password").value;
+		document.querySelector(".login").classList.add("loading")
+		try {
+			await login(email, password);
+		} catch (error) {
+			alert("Помилка входу: " + error)
+		} finally {
+			document.querySelector(".login").classList.remove("loading")
+		}
+	}
+
+	const initApp = async () => {
+		try {
+			appData = await loadData("appData");
+			renderApp();
+		} catch (error) {
+			alert("Помилка завантаження даних з хмари: " + error)
+		}
+	}
+
+	const importFromFile = async file => {
+		appData = await readJsonFile(file);
+		renderApp();
+	}
+
+	const saveToCloud = () => {
+		saveData("appData", appData);
+		alert("Дані вивантажено в хмару")
+	}
+
+	initAuthListener(showApp, hideApp);
+
 	[expensesContainer, ...reportInputs, reportDateInput].forEach(item => item.addEventListener("change", updateReport));
 	document.querySelector("#addExpense").addEventListener("click", addExpense);
 	document.querySelector(".expenses").addEventListener("click", (event) => {
@@ -435,7 +437,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	})
 	document.querySelector('#saveToFile').addEventListener("click", () => saveToFile(appData));
 	document.querySelector('#importFromFile').addEventListener("click", async () => importFromFile(document.querySelector("#file").files[0]));
-	document.querySelector("#saveToCloud").addEventListener("click", () => saveData("appData", appData));
+	document.querySelector("#saveToCloud").addEventListener("click", saveToCloud);
 	document.querySelector("#createReport").addEventListener("click", createNewReport);
 	document.querySelector("#closeReport").addEventListener("click", closeReport);
 	document.querySelectorAll(".open-screen").forEach(item => item.addEventListener("click", (event) => openScreen(event.target)));
@@ -452,4 +454,4 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	});
 	document.querySelector("#login").addEventListener("click", authentication);
 	document.querySelector("#logout").addEventListener("click", logout);
-})())
+})());
