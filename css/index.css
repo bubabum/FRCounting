@@ -341,11 +341,12 @@ input.report-input {
 	margin-bottom: 20px;
 	letter-spacing: 1px;
 	font-weight: 600;
-	color: #292D32;
+	color: var(--grayDark);
 }
 
 .login__img {
 	margin-bottom: 20px;
+	max-width: 200px;
 }
 
 .login__form {
@@ -377,6 +378,17 @@ input.report-input {
 
 .sidebar.logged {
 	display: flex;
+}
+
+.sidebar__img {
+	width: 100%;
+	margin-bottom: 10px;
+	display: flex;
+	justify-content: center;
+}
+
+.sidebar__img img {
+	max-width: 50px;
 }
 
 .sidebar__logo {

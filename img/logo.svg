@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="59.999958mm"
-   height="60.006153mm"
-   viewBox="0 0 59.999958 60.006153"
+   width="900"
+   height="900"
+   viewBox="0 0 238.125 238.125"
    version="1.1"
    id="svg1"
    inkscape:export-filename="logo.svg"
@@ -12,7 +12,6 @@
    inkscape:export-ydpi="96"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <sodipodi:namedview
@@ -24,39 +23,55 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
-     inkscape:document-units="mm" />
+     inkscape:document-units="px" />
   <defs
-     id="defs1">
-    <linearGradient
-       id="linearGradient4"
-       inkscape:collect="always">
-      <stop
-         style="stop-color:#c82f37;stop-opacity:1;"
-         offset="0"
-         id="stop4" />
-      <stop
-         style="stop-color:#f3cc6b;stop-opacity:1;"
-         offset="1"
-         id="stop5" />
-    </linearGradient>
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient4"
-       id="linearGradient5"
-       x1="48.836811"
-       y1="123.33252"
-       x2="108.83677"
-       y2="123.33252"
-       gradientUnits="userSpaceOnUse" />
-  </defs>
+     id="defs1" />
   <g
      inkscape:label="Шар 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-48.836812,-93.332288)">
+     transform="translate(15.193667,-31.834347)">
+    <rect
+       style="display:none;fill:#71c9ce;fill-opacity:1;stroke-width:0.264583"
+       id="rect2"
+       width="79.375"
+       height="158.75"
+       x="-15.193667"
+       y="111.20935"
+       inkscape:label="light"
+       rx="13.229167"
+       ry="13.229167" />
+    <rect
+       style="display:none;fill:#4da8ad;fill-opacity:1;stroke-width:0.295813"
+       id="rect2-1"
+       width="79.375"
+       height="198.4375"
+       x="64.181335"
+       y="71.521851"
+       inkscape:label="medium"
+       ry="13.229167"
+       rx="13.229167" />
+    <rect
+       style="display:none;fill:#34797d;fill-opacity:1;stroke-width:0.264583"
+       id="rect3"
+       width="79.375"
+       height="238.125"
+       x="143.55634"
+       y="31.834347"
+       inkscape:label="dark"
+       rx="13.229167"
+       ry="13.229167" />
     <path
-       id="rect1"
-       style="fill:url(#linearGradient5);stroke:none;stroke-width:0.264583"
-       d="m 48.836812,93.332288 v 60.000472 h 28.533142 v 0.006 H 108.75253 V 120.8224 h -7.15356 v 15.76028 H 85.238208 V 120.8224 h -7.868254 v 22.88646 H 59.747257 V 103.74457 H 108.83677 V 93.332288 Z" />
+       id="rect2-4"
+       d="M -1.9645004,111.20935 H 64.181333 v 158.75 H -1.9645004 A 13.229167,13.229167 45 0 1 -15.193667,256.73018 V 124.43852 a 13.229167,13.229167 135 0 1 13.2291666,-13.22917 z"
+       style="display:inline;fill:#71c9ce;fill-opacity:1;stroke-width:0.264583" />
+    <path
+       id="rect2-1-8"
+       d="M 77.410502,71.521858 H 143.55634 V 269.95936 H 64.181335 V 84.751025 A 13.229167,13.229167 135 0 1 77.410502,71.521858 Z"
+       style="display:inline;fill:#4da8ad;fill-opacity:1;stroke-width:0.295813" />
+    <path
+       id="rect3-1"
+       d="m 156.7855,31.834347 h 52.91667 a 13.229167,13.229167 45 0 1 13.22917,13.229167 V 256.73018 a 13.229167,13.229167 135 0 1 -13.22917,13.22917 H 143.55634 V 45.063514 A 13.229167,13.229167 135 0 1 156.7855,31.834347 Z"
+       style="fill:#34797d;fill-opacity:1;stroke-width:0.264583" />
   </g>
 </svg>
