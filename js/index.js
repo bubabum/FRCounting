@@ -76,6 +76,20 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		`
 	}
 
+	const createExpenseFilledInputHtml = (expense, expenseCategories) => {
+		return `
+			<div class="expenses__item">
+				<input class="expenses__date" type="date" name="date" value="${expense.date}">
+				<input class="expenses__amount" type="number" value="${expense.amount}" min="0" name="amount">
+				<select class="expenses__category" name="category">
+					<option value="${expense.category}" selected>${expenseCategories.find(item => item.id === Number(expense.category)).category}</option>
+				</select>
+				<input class="expenses__note" type="text" name="note" value="${expense.note}">
+				<button class="expenses__delete secondary"><span class="material-symbols-outlined">delete_outline</span></button>
+			</div>
+		`
+	}
+
 	const createExpenseHtml = (expense, expenseCategories) => {
 		return `
 			<div class="expenses__item expenses__item_grid">
@@ -172,7 +186,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	const renderReportInputs = report => {
 		reportInputs.forEach(item => item.value = report[item.name]);
 		reportDateInput.value = report.date;
-		expensesContainer.innerHTML = report.expenses.map(item => createExpenseHtml(item, report.expenseCategories)).join('');
+		expensesContainer.innerHTML = report.expenses.map(item => createExpenseFilledInputHtml(item, report.expenseCategories)).join('');
 	}
 
 	const renderReportCalculations = report => {
@@ -182,7 +196,6 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		document.querySelector(".divivdents").innerHTML = report.dividents.map(createDividentHtml).join('');
 		document.querySelector("#restBalance").textContent = formatToRender(report.restBalance);
 	}
-
 
 	const validateDividentsAmount = report => {
 		if (report.dividentsAmount > report.balance) report.dividentsAmount = report.balance;
@@ -220,8 +233,6 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		return Object.fromEntries(reportInputs.map(input => [input.name, Number(input.value)]))
 	}
 
-
-
 	const calculateReport = report => {
 		report.totalExpenses = getTotalExpenses(report);
 		report.grossProfit = safeRound(report.mainIncome + report.subIncome - report.productionCosts - report.goodsCosts);
@@ -230,6 +241,10 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		report.dividents = calculateDividents(report);
 		report.restBalance = safeRound(report.mainIncome + report.subIncome + report.initialBalance - report.totalExpenses - report.dividentsAmount);
 		return report
+	}
+
+	const isLastReport = () => {
+		return appData.reports.findIndex(item => item.id === currentReport.id) === appData.reports.length - 1
 	}
 
 	const createNewReport = () => {
@@ -241,11 +256,13 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	}
 
 	const openReport = id => {
-		changeUIState("openedOldReport")
 		currentReport = appData.reports.find(item => item.id === id);
 		renderReportInputs(currentReport);
 		renderReportCalculations(currentReport);
+		if (isLastReport()) return changeUIState("openedLastReport")
+		changeUIState("openedOldReport")
 	}
+
 
 	const closeReport = () => {
 		changeUIState();
@@ -254,7 +271,8 @@ document.addEventListener("DOMContentLoaded", (async () => {
 
 	const saveReport = () => {
 		if (!confirm("Зберегти звіт?")) return
-		if (appData.reports.find(item => item.date === currentReport.date)) return alert("Звіт з такою датою вже існує")
+		if (appData.reports.find(item => item.date === currentReport.date) && !isLastReport()) return alert("Звіт з такою датою вже існує")
+		if (isLastReport()) appData.reports.pop();
 		appData.reports.push(currentReport);
 		appData.reports.sort((a, b) => new Date(a.date) - new Date(b.date));
 		saveData("appData", appData);
@@ -298,6 +316,13 @@ document.addEventListener("DOMContentLoaded", (async () => {
 				openReportBtn.disabled = false;
 				[reportDateInput, ...reportInputs].forEach(item => item.disabled = false);
 				reportDateInput.valueAsDate = new Date();
+				document.querySelectorAll("#saveReport, #addExpense").forEach(btn => btn.classList.remove("hidden"))
+				break
+			case 'openedLastReport':
+				openScreen(openReportBtn);
+				openReportBtn.disabled = false;
+				reportDateInput.disabled = true;
+				reportInputs.forEach(item => item.disabled = false);
 				document.querySelectorAll("#saveReport, #addExpense").forEach(btn => btn.classList.remove("hidden"))
 				break
 			default:
