@@ -249,7 +249,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 
 	const createNewReport = () => {
 		changeUIState("openedNewReport")
-		currentReport = { id: crypto.randomUUID() }
+		currentReport = { id: crypto.randomUUID(), status: "draft" }
 		const lastReport = appData.reports.slice(-1).pop();
 		document.querySelector("input[name=initialBalance]").value = lastReport?.restBalance || 0;
 		updateReport();
@@ -290,10 +290,12 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	}
 
 	const updateReport = () => {
+		console.log(currentReport)
 		const epensesData = getReportExpensesData();
 		const inputData = getReportInputData();
 		currentReport = calculateReport({
 			id: currentReport.id,
+			status: currentReport.status,
 			date: reportDateInput.value,
 			expenseCategories: appData.expenseCategories,
 			investors: appData.investors,
