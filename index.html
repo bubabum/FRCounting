@@ -6,9 +6,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,200,0,0&icon_names=add,assignment,bar_chart,close,cloud_upload,create,delete,draft,file_save,list,logout,manage_accounts,open_in_new,print,receipt_long,sync,task,upload_file" />
-	<!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,100,100,0&icon_names=assignment,checkbook,cloud,list,logout,upload_file&display=block" /> -->
-	<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,200,0,0&icon_names=add,assignment,bar_chart,bookmark,close,cloud_upload,create,delete,draft,file_save,list,logout,manage_accounts,open_in_new,print,receipt_long,sync,task,upload_file" />
+	<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap%22%20rel=%22stylesheet" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="./css/index.css">
 	<link rel="shortcut icon" href="./img/logo.svg">
 	<title>FRCounting</title>
@@ -74,8 +73,14 @@
 			<div id="reports" class="content__screen">
 				<div class="content__title">Звіти</div>
 				<div class="content__page">
-					<div class="content__controls">
+					<div class="button-group button-group-h">
 						<button id="createReport" class="reports__add primary"><span class="material-symbols-outlined">create</span>Створити</button>
+						<select name="" id="sortReports">
+							<option value="dateNewest">Дата найновіший</option>
+							<option value="dateOldest">Дата найстаріший</option>
+							<option value="profit">Прибуток</option>
+							<option value="income">Дохід</option>
+						</select>
 					</div>
 					<div class="content__row">
 						<div class="content__section">
@@ -85,7 +90,7 @@
 									<div>Дохід</div>
 									<div>Витрати</div>
 									<div>Прибуток</div>
-									<div>-</div>
+									<div></div>
 								</div>
 								<div id="reportsContainer" class="reports__content">
 									<div class="loader">
@@ -144,10 +149,11 @@
 						<div class="large">
 							<div class="report-buttons">
 								<input id="reportDate" class="" type="month" name="date">
+								<input id="reportTestDate" class="" type="date" name="date">
 								<div class="button-group button-group-h">
 									<button id="printReport" class="primary"><span class="material-symbols-outlined">print</span>Друк</button>
-									<button id="saveDraftReport" class="primary"><span class="material-symbols-outlined">draft</span>Зберегти чернетку</button>
-									<button id="saveReport" class="primary"><span class="material-symbols-outlined">task</span>Завершити</button>
+									<button id="saveReport" class="primary"><span class="material-symbols-outlined">draft</span>Зберегти</button>
+									<button id="completeReport" class="primary"><span class="material-symbols-outlined">task</span>Завершити</button>
 									<button id="closeReport" class="secondary"><span class="material-symbols-outlined">close</span>Закрити</button>
 								</div>
 							</div>

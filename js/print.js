@@ -2,7 +2,7 @@ const createExpenseTable = report => {
 	return report.expenses.map((item, i) => `
 		<tr>
 			<td>${i + 1}</td>
-			<td>${item.date}</td>
+			<td>${(new Date(item.date)).toLocaleDateString()}</td>
 			<td>${item.amount.toFixed(2)} ₴</td>
 			<td>${report.expenseCategories?.find(category => category.id === Number(item.category)).category}</td>
 			<td>${item.note}</td>

@@ -22,13 +22,20 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	const openReportBtn = document.querySelector("#openReportBtn");
 	const openReportListBtn = document.querySelector("#reportListBtn");
 
+	const sortFunctions = {
+		dateNewest: (a, b) => new Date(b.date) - new Date(a.date),
+		dateOldest: (a, b) => new Date(a.date) - new Date(b.date),
+		profit: (a, b) => b.grossProfit - a.grossProfit,
+		income: (a, b) => b.mainIncome - a.mainIncome,
+	}
+
 	const formatToRender = num => num.toFixed(2) + " ₴";
 	const safeRound = value => Number(value.toFixed(2));
 
 	const createReportHtml = report => {
 		return `
-		<div class="reports__item">
-			<div>${report.date}</div>
+		<div class="reports__item ${report.status === 'draft' ? 'reports__item_draft' : ''}">
+			<div class="reports__date">${report.date.split("-").reverse().join(".")}</div>
 			<div>${formatToRender(report.mainIncome + report.subIncome)}</div>
 			<div>${formatToRender(report.totalExpenses)}</div>
 			<div>${formatToRender(report.grossProfit)}</div>
@@ -65,9 +72,10 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	}
 
 	const createExpenseInputHtml = () => {
+		const date = document.querySelector("#reportTestDate").value
 		return `
 			<div class="expenses__item">
-				<input class="expenses__date" type="date" name="date" value="${new Date().toISOString().split('T')[0]}">
+				<input class="expenses__date" type="date" name="date" value="${date || new Date().toISOString().split('T')[0]}">
 				<input class="expenses__amount" type="number" value="0" min="0" name="amount">
 				<select class="expenses__category" name="category">${createSelectHtml()}</select>
 				<input class="expenses__note" type="text" name="note" value="">
@@ -93,7 +101,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	const createExpenseHtml = (expense, expenseCategories) => {
 		return `
 			<div class="expenses__item expenses__item_grid">
-				<div class="expenses__date">${expense.date}</div>
+				<div class="expenses__date">${(new Date(expense.date)).toLocaleDateString()}</div>
 				<div class="expenses__amount">${formatToRender(expense.amount)}</div>
 				<div class="expenses__category">${expenseCategories.find(item => item.id === Number(expense.category)).category}</div>
 				<div class="expenses__note">${expense.note}</div>
@@ -124,8 +132,12 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		updateReport();
 	}
 
-	const renderReports = () => {
-		document.querySelector("#reportsContainer").innerHTML = appData.reports.map(item => item).sort((a, b) => new Date(b.date) - new Date(a.date)).map(createReportHtml).join('');
+	const sortReports = () => {
+		renderReports(sortFunctions[document.querySelector("#sortReports").value])
+	}
+
+	const renderReports = sortFunctionName => {
+		document.querySelector("#reportsContainer").innerHTML = appData.reports.map(item => item).sort(sortFunctionName).map(createReportHtml).join('');
 	}
 
 	const renderExpenseCategories = () => {
@@ -186,7 +198,9 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	const renderReportInputs = report => {
 		reportInputs.forEach(item => item.value = report[item.name]);
 		reportDateInput.value = report.date;
-		expensesContainer.innerHTML = report.expenses.map(item => createExpenseFilledInputHtml(item, report.expenseCategories)).join('');
+		let createHtml = createExpenseHtml;
+		if (report.status === "draft") createHtml = createExpenseFilledInputHtml;
+		expensesContainer.innerHTML = report.expenses.map(item => createHtml(item, report.expenseCategories)).join('');
 	}
 
 	const renderReportCalculations = report => {
@@ -243,12 +257,12 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		return report
 	}
 
-	const isLastReport = () => {
-		return appData.reports.findIndex(item => item.id === currentReport.id) === appData.reports.length - 1
+	const isDateDuplicate = () => {
+		return appData.reports.some(item => item.date === currentReport.date && item.id !== currentReport.id)
 	}
 
 	const createNewReport = () => {
-		changeUIState("openedNewReport")
+		changeUIState("newReport")
 		currentReport = { id: crypto.randomUUID(), status: "draft" }
 		const lastReport = appData.reports.slice(-1).pop();
 		document.querySelector("input[name=initialBalance]").value = lastReport?.restBalance || 0;
@@ -257,26 +271,38 @@ document.addEventListener("DOMContentLoaded", (async () => {
 
 	const openReport = id => {
 		currentReport = appData.reports.find(item => item.id === id);
+		console.log(currentReport)
 		renderReportInputs(currentReport);
 		renderReportCalculations(currentReport);
-		if (isLastReport()) return changeUIState("openedLastReport")
-		changeUIState("openedOldReport")
+		if (currentReport.status === "draft") return changeUIState("draftReport")
+		changeUIState("completedReport")
 	}
-
 
 	const closeReport = () => {
 		changeUIState();
 		currentReport = {};
 	}
 
-	const saveReport = () => {
-		if (!confirm("Зберегти звіт?")) return
-		if (appData.reports.find(item => item.date === currentReport.date) && !isLastReport()) return alert("Звіт з такою датою вже існує")
-		if (isLastReport()) appData.reports.pop();
-		appData.reports.push(currentReport);
+	const updateOrAddReport = () => {
+		const reportIndex = appData.reports.findIndex(item => item.id === currentReport.id);
+		if (reportIndex !== -1) appData.reports[reportIndex] = currentReport;
+		if (reportIndex === -1) appData.reports.push(currentReport);
 		appData.reports.sort((a, b) => new Date(a.date) - new Date(b.date));
 		saveData("appData", appData);
 		renderApp();
+	}
+
+	const saveReport = () => {
+		if (isDateDuplicate()) return alert("Звіт з такою датою вже існує")
+		updateOrAddReport();
+	}
+
+	const completeReport = () => {
+		if (isDateDuplicate()) return alert("Звіт з такою датою вже існує")
+		if (!confirm("Завершити звіт?")) return
+		currentReport.status = "completed";
+		updateOrAddReport();
+		closeReport();
 	}
 
 	const removeReport = btn => {
@@ -290,7 +316,6 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	}
 
 	const updateReport = () => {
-		console.log(currentReport)
 		const epensesData = getReportExpensesData();
 		const inputData = getReportInputData();
 		currentReport = calculateReport({
@@ -307,25 +332,25 @@ document.addEventListener("DOMContentLoaded", (async () => {
 
 	const changeUIState = state => {
 		switch (state) {
-			case 'openedOldReport':
+			case 'completedReport':
 				openScreen(openReportBtn);
 				openReportBtn.disabled = false;
 				[reportDateInput, ...reportInputs].forEach(item => item.disabled = true);
-				document.querySelectorAll("#saveReport, #addExpense").forEach(btn => btn.classList.add("hidden"))
+				document.querySelectorAll("#saveReport, #completeReport, #addExpense").forEach(btn => btn.classList.add("hidden"))
 				break
-			case 'openedNewReport':
+			case 'newReport':
 				openScreen(openReportBtn);
 				openReportBtn.disabled = false;
 				[reportDateInput, ...reportInputs].forEach(item => item.disabled = false);
 				reportDateInput.valueAsDate = new Date();
-				document.querySelectorAll("#saveReport, #addExpense").forEach(btn => btn.classList.remove("hidden"))
+				document.querySelectorAll("#saveReport, #completeReport, #addExpense").forEach(btn => btn.classList.remove("hidden"))
 				break
-			case 'openedLastReport':
+			case 'draftReport':
 				openScreen(openReportBtn);
 				openReportBtn.disabled = false;
 				reportDateInput.disabled = true;
 				reportInputs.forEach(item => item.disabled = false);
-				document.querySelectorAll("#saveReport, #addExpense").forEach(btn => btn.classList.remove("hidden"))
+				document.querySelectorAll("#saveReport, #completeReport, #addExpense").forEach(btn => btn.classList.remove("hidden"))
 				break
 			default:
 				openScreen(openReportListBtn);
@@ -390,7 +415,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	}
 
 	const renderApp = () => {
-		renderReports();
+		renderReports(sortFunctions.dateNewest);
 		renderExpenseCategories();
 		renderInvestors();
 		renderChartYears();
@@ -456,8 +481,10 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	document.querySelector(".expenses").addEventListener("click", (event) => {
 		if (event.target.closest(".expenses__delete")) removeExpense(event.target);
 	});
+	document.querySelector("#sortReports").addEventListener("change", sortReports);
 	document.querySelector('#printReport').addEventListener("click", () => openPrintWindow({ ...currentReport }));
 	document.querySelector('#saveReport').addEventListener("click", saveReport);
+	document.querySelector('#completeReport').addEventListener("click", completeReport);
 	document.querySelector("#reportsContainer").addEventListener("click", (event) => {
 		if (event.target.closest(".report__open")) openReport(event.target.closest(".report__open").dataset.id);
 		if (event.target.closest(".report__delete")) removeReport(event.target);
