@@ -207,7 +207,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		document.querySelector("#totalExpenses").textContent = formatToRender(report.totalExpenses);
 		document.querySelector("#grossProfit").textContent = formatToRender(report.grossProfit);
 		document.querySelector("#balance").textContent = formatToRender(report.balance);
-		document.querySelector(".divivdents").innerHTML = report.dividents.map(createDividentHtml).join('');
+		document.querySelector(".divivdents").innerHTML = report.investors.map(createDividentHtml).join('');
 		document.querySelector("#restBalance").textContent = formatToRender(report.restBalance);
 	}
 
@@ -218,13 +218,16 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	}
 
 	const calculateDividents = ({ dividentsAmount, investors }) => {
-		const dividents = [...investors].sort((a, b) => a.percentage - b.percentage);
-		dividents.forEach((item, i, arr) => {
-			if (dividentsAmount < 1000) return item.amount = 0;
-			if (i === arr.length - 1) return item.amount = dividentsAmount - arr.filter(item => arr.indexOf(item) !== arr.length - 1).reduce((acc, cur) => acc + cur.amount, 0);
-			item.amount = dividentsAmount * item.percentage / 100 + 100 - dividentsAmount * item.percentage / 100 % 100;
-		});
-		return dividents.sort((a, b) => a.id - b.id)
+		investors.sort((a, b) => a.percentage - b.percentage).forEach((item, i, arr) => {
+			if (i === arr.length - 1) {
+				item.amount = dividentsAmount - arr
+					.slice(0, -1)
+					.reduce((acc, cur) => acc + cur.amount, 0);
+				arr.sort((a, b) => a.id - b.id)
+			} else {
+				item.amount = Math.ceil(dividentsAmount * item.percentage / 100 / 100) * 100;
+			}
+		})
 	}
 
 	const getTotalExpenses = ({ expenses }) => {
@@ -252,7 +255,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		report.grossProfit = safeRound(report.mainIncome + report.subIncome - report.productionCosts - report.goodsCosts);
 		report.balance = safeRound(report.mainIncome + report.subIncome + report.initialBalance - report.totalExpenses);
 		validateDividentsAmount(report);
-		report.dividents = calculateDividents(report);
+		calculateDividents(report);
 		report.restBalance = safeRound(report.mainIncome + report.subIncome + report.initialBalance - report.totalExpenses - report.dividentsAmount);
 		return report
 	}
@@ -273,7 +276,6 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		currentReport = appData.reports.find(item => item.id === id);
 		renderReportInputs(currentReport);
 		renderReportCalculations(currentReport);
-		console.log(currentReport)
 		if (currentReport.status === "draft") return changeUIState("draftReport")
 		changeUIState("completedReport")
 	}
@@ -322,8 +324,8 @@ document.addEventListener("DOMContentLoaded", (async () => {
 			id: currentReport.id,
 			status: currentReport.status,
 			date: reportDateInput.value,
-			expenseCategories: appData.expenseCategories,
-			investors: appData.investors,
+			expenseCategories: [...appData.expenseCategories],
+			investors: [...appData.investors],
 			expenses: epensesData,
 			...inputData,
 		});
@@ -458,6 +460,12 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	const initApp = async () => {
 		try {
 			appData = await loadData("appData");
+			// appData.reports.forEach(item => {
+			// 	if (item.dividents) delete item.dividents
+			// 	item.investors.forEach(item => item.percentage = safeRound(item.percentage + item.percentage / 100))
+			// 	calculateDividents(item);
+			// })
+			// saveData("appData", appData);
 			renderApp();
 		} catch (error) {
 			alert("Помилка завантаження даних з хмари: " + error)

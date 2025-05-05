@@ -11,7 +11,7 @@ const createExpenseTable = report => {
 }
 
 const createDividentsTable = report => {
-	return report.dividents.map((item, i) => `
+	return report.investors.map(item => `
 		<tr>
 			<td>${item.name}</td>
 			<td>${item.amount.toFixed(2)} ₴</td>
