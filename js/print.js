@@ -19,6 +19,13 @@ const createDividentsTable = report => {
 	`).join('');
 }
 
+const createDateString = date => {
+	return new Date(date).toLocaleString('uk-UA', {
+		month: 'long',
+		year: "numeric",
+	});
+}
+
 const fillTemplate = (template, data) => {
 	return Object.keys(data).reduce((result, key) => {
 		if (typeof data[key] === "number") data[key] = data[key].toFixed(2) + " ₴";
@@ -30,6 +37,7 @@ export async function openPrintWindow(report) {
 	const printWindow = window.open('', '_blank', 'width=794,height=1123'); // A4 в пікселях при 96dpi
 	report.expensesTable = createExpenseTable(report);
 	report.dividentsTable = createDividentsTable(report);
+	report.date = createDateString(report.date);
 	const printTemplate = await fetch("./templates/print.html");
 	const printTemplateHtml = await printTemplate.text();
 	const printHtml = fillTemplate(printTemplateHtml, report);

@@ -271,9 +271,9 @@ document.addEventListener("DOMContentLoaded", (async () => {
 
 	const openReport = id => {
 		currentReport = appData.reports.find(item => item.id === id);
-		console.log(currentReport)
 		renderReportInputs(currentReport);
 		renderReportCalculations(currentReport);
+		console.log(currentReport)
 		if (currentReport.status === "draft") return changeUIState("draftReport")
 		changeUIState("completedReport")
 	}
