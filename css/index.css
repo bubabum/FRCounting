@@ -684,6 +684,18 @@ input.report-input {
 	font-size: 14px;
 }
 
+.chart {
+	position: absolute;
+	opacity: 0;
+	visibility: hidden;
+	padding: 0 0 20px;
+}
+
+.chart.active {
+	opacity: 1;
+	visibility: visible;
+}
+
 .list-item {
 	display: flex;
 	gap: 10px;

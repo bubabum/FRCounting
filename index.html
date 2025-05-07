@@ -217,17 +217,28 @@
 				<div class="content__page">
 					<div class="content__charts">
 						<div class=" content__section">
-							<label for="">Графіки за:</label>
-							<select id="chartYears" class="" name="chartYears"></select>
+							<div class="button-group button-group-h">
+								<label for="">Графіки за:</label>
+								<select id="chartYears" class="" name="chartYears"></select>
+								<label for="">Тип:</label>
+								<select id="chartType" class="" name="chartType">
+									<option value="dividentsAmountChart">Дивіденти</option>
+									<option value="incomeChart">Дохід</option>
+									<option value="totalExpensesChart">Витрати</option>
+								</select>
+							</div>
+							<canvas class="chart active" id="dividentsAmountChart"></canvas>
+							<canvas class="chart" id="incomeChart"></canvas>
+							<canvas class="chart" id="totalExpensesChart"></canvas>
 						</div>
 						<div class="content__section">
-							<canvas id="revenueChart"></canvas>
+							<canvas class="chart active" id="dividentsByYearChart"></canvas>
 						</div>
 						<div class="content__section">
-							<canvas id="grossProfitChart"></canvas>
+
 						</div>
 						<div class="content__section">
-							<canvas id="totalExpensesChart"></canvas>
+
 						</div>
 					</div>
 				</div>

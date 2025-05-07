@@ -2,7 +2,7 @@
 import { readJsonFile } from "./import.js"
 import { saveToFile } from "./export.js"
 import { openPrintWindow } from "./print.js"
-import { createChart, updateChart } from "./chart.js"
+import { createChart, createReportChart, updateChart } from "./chart.js"
 import { initAuthListener, login, logout } from "./auth.js"
 import { loadData, saveData } from "./db.js"
 import { app } from "./firebase-config.js"
@@ -330,6 +330,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 			...inputData,
 		});
 		renderReportCalculations(currentReport);
+		console.log(currentReport);
 	}
 
 	const changeUIState = state => {
@@ -385,9 +386,9 @@ document.addEventListener("DOMContentLoaded", (async () => {
 
 	const charts = [
 		{
-			elem: document.querySelector('#grossProfitChart'),
-			dataKey: 'grossProfit',
-			label: 'Прибуток',
+			elem: document.querySelector('#dividentsAmountChart'),
+			dataKey: 'dividentsAmount',
+			label: 'Дивіденти',
 			labelsKey: 'date',
 			backgroundColor: '#71C9CE',
 		},
@@ -399,7 +400,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 			backgroundColor: '#4DA8AD',
 		},
 		{
-			elem: document.querySelector('#revenueChart'),
+			elem: document.querySelector('#incomeChart'),
 			dataKey: 'mainIncome',
 			label: 'Дохід',
 			labelsKey: 'date',
@@ -416,6 +417,12 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		btn.closest(".sidebar__btn").classList.add("active");
 	}
 
+	const changeChartType = () => {
+		document.querySelectorAll(".chart").forEach(item => item.classList.remove("active"));
+		const id = document.querySelector("#chartType").value;
+		document.querySelector(`#${id}`).classList.add("active");
+	}
+
 	const renderApp = () => {
 		renderReports(sortFunctions.dateNewest);
 		renderExpenseCategories();
@@ -423,6 +430,11 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		renderChartYears();
 		changeCurrentChartYear();
 		updateCharts();
+		console.log(appData.reports.reduce((acc, { date, dividentsAmount }) => {
+			const year = date.split('-')[0];
+			acc[year] = (acc[year] || 0) + dividentsAmount;
+			return acc;
+		}, {}))
 		// appData.reports.forEach(item => {
 		// 	for (let key in item) {
 		// 		if (typeof item[key] === "number") item[key] = safeRound(item[key])
@@ -514,6 +526,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	investorsContainer.addEventListener("click", (event) => {
 		if (event.target.closest(".investor__delete")) removeInvestor(event.target.closest(".investor__item").dataset.id);
 	});
+	document.querySelector("#chartType").addEventListener("change", changeChartType)
 	document.querySelector("#login").addEventListener("click", authentication);
 	document.querySelector("#logout").addEventListener("click", logout);
 })());
