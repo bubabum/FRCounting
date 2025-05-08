@@ -2,7 +2,7 @@
 import { readJsonFile } from "./import.js"
 import { saveToFile } from "./export.js"
 import { openPrintWindow } from "./print.js"
-import { createChart, createReportChart, updateChart } from "./chart.js"
+import { createReportChart, updateChart } from "./chart.js"
 import { initAuthListener, login, logout } from "./auth.js"
 import { loadData, saveData } from "./db.js"
 import { app } from "./firebase-config.js"
@@ -408,7 +408,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		},
 	];
 
-	charts.forEach(item => item.chart = createChart({ data: appData.reports, ...item }));
+	charts.forEach(item => item.chart = createReportChart({ data: appData.reports, ...item }));
 
 	const openScreen = btn => {
 		document.querySelectorAll(".content__screen").forEach(item => item.classList.remove("active"));

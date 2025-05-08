@@ -14,15 +14,15 @@ export const updateChart = ({ chart, data, dataKey, labelsKey }) => {
 	chart.update();
 }
 
-export const createChart = ({ elem, data, label, backgroundColor }) => {
+const createChart = (elem, data, label, labels, backgroundColor) => {
 	return new Chart(elem, {
 		type: 'bar',
 		data: {
-			labels: createDateLabels(data, labelsKey),
+			labels: labels,
 			datasets: [
 				{
 					label: label,
-					data: getDataForCharts(data, dataKey),
+					data: data,
 					borderWidth: 1,
 					backgroundColor: backgroundColor,
 				},
