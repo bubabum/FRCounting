@@ -5,6 +5,9 @@ import { openPrintWindow } from "./print.js"
 import { createReportChart, updateChart } from "./chart.js"
 import { initAuthListener, login, logout } from "./auth.js"
 import { loadData, saveData } from "./db.js"
+import { renderChart } from "./chartManager.js"
+// import { dividentsAmountChart, dividentsAmountByYearChart } from "./chartConfig.js"
+import { chartsTest } from "./chartConfig.js"
 import { app } from "./firebase-config.js"
 
 document.addEventListener("DOMContentLoaded", (async () => {
@@ -430,18 +433,22 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		renderChartYears();
 		changeCurrentChartYear();
 		updateCharts();
-		console.log(appData.reports.reduce((acc, { date, dividentsAmount }) => {
-			const year = date.split('-')[0];
-			acc[year] = (acc[year] || 0) + dividentsAmount;
-			return acc;
-		}, {}))
-		// appData.reports.forEach(item => {
-		// 	for (let key in item) {
-		// 		if (typeof item[key] === "number") item[key] = safeRound(item[key])
-		// 	}
+		// console.log(dividentsAmountChart.dataBuilder(appData.reports));
+		chartsTest.forEach(item => renderChart({
+			id: item.elem,
+			ctx: document.querySelector(item.elem),
+			data: item.dataBuilder(appData.reports)
+		}))
+		// renderChart({
+		// 	id: dividentsAmountChart.elem,
+		// 	ctx: document.querySelector(dividentsAmountChart.elem),
+		// 	data: dividentsAmountChart.dataBuilder(appData.reports)
+		// });
+		// renderChart({
+		// 	id: dividentsAmountByYearChart.elem,
+		// 	ctx: document.querySelector(dividentsAmountByYearChart.elem),
+		// 	data: dividentsAmountByYearChart.dataBuilder(appData.reports)
 		// })
-		// saveToCloud();
-		// console.log(appData)
 	}
 
 	const showApp = async () => {
