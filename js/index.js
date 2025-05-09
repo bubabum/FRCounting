@@ -15,6 +15,8 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		reports: [],
 		investors: [],
 		expenseCategories: [],
+		currentChartYear: "",
+		currentChartIndicator: "",
 	};
 	let currentReport = {};
 	let currentChartYear = '';
@@ -373,45 +375,20 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	}
 
 	const updateCharts = () => {
-		document.querySelector("#openCharts").disabled = false;
-		if (appData.reports.length === 0) document.querySelector("#openCharts").disabled = true;
-		charts.forEach(item => updateChart({ data: getReportsByYear(currentChartYear), ...item }));
+
+		// charts.forEach(item => updateChart({ data: getReportsByYear(currentChartYear), ...item }));
 	}
 
-	const getReportsByYear = year => {
-		return appData.reports.filter(item => item.date.split('-')[0] === year)
-	}
 
 	const changeCurrentChartYear = () => {
-		currentChartYear = document.querySelector("#chartYears").value;
-		updateCharts();
+		appData.currentChartYear = document.querySelector("#chartYears").value;
+		renderCharts();
 	}
 
-	const charts = [
-		{
-			elem: document.querySelector('#dividentsAmountChart'),
-			dataKey: 'dividentsAmount',
-			label: 'Дивіденти',
-			labelsKey: 'date',
-			backgroundColor: '#71C9CE',
-		},
-		{
-			elem: document.querySelector('#totalExpensesChart'),
-			dataKey: 'totalExpenses',
-			label: 'Витрати',
-			labelsKey: 'date',
-			backgroundColor: '#4DA8AD',
-		},
-		{
-			elem: document.querySelector('#incomeChart'),
-			dataKey: 'mainIncome',
-			label: 'Дохід',
-			labelsKey: 'date',
-			backgroundColor: '#34797D',
-		},
-	];
-
-	charts.forEach(item => item.chart = createReportChart({ data: appData.reports, ...item }));
+	const changeChartIndicator = () => {
+		appData.currentChartIndicator = document.querySelector("#chartType").value;
+		renderCharts();
+	}
 
 	const openScreen = btn => {
 		document.querySelectorAll(".content__screen").forEach(item => item.classList.remove("active"));
@@ -426,19 +403,26 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		document.querySelector(`#${id}`).classList.add("active");
 	}
 
+	const renderCharts = () => {
+		document.querySelector("#openCharts").disabled = false;
+		if (appData.reports.length === 0) document.querySelector("#openCharts").disabled = true;
+		chartsTest.forEach(item => renderChart({
+			id: item.elem,
+			ctx: document.querySelector(item.elem),
+			data: item.dataBuilder(appData)
+		}))
+	}
+
 	const renderApp = () => {
 		renderReports(sortFunctions.dateNewest);
 		renderExpenseCategories();
 		renderInvestors();
 		renderChartYears();
-		changeCurrentChartYear();
-		updateCharts();
+		// changeCurrentChartYear();
+		// updateCharts();
+		renderCharts();
 		// console.log(dividentsAmountChart.dataBuilder(appData.reports));
-		chartsTest.forEach(item => renderChart({
-			id: item.elem,
-			ctx: document.querySelector(item.elem),
-			data: item.dataBuilder(appData.reports)
-		}))
+
 		// renderChart({
 		// 	id: dividentsAmountChart.elem,
 		// 	ctx: document.querySelector(dividentsAmountChart.elem),
@@ -522,7 +506,6 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	document.querySelector("#createReport").addEventListener("click", createNewReport);
 	document.querySelector("#closeReport").addEventListener("click", closeReport);
 	document.querySelectorAll(".open-screen").forEach(item => item.addEventListener("click", (event) => openScreen(event.target)));
-	document.querySelector("#chartYears").addEventListener("change", changeCurrentChartYear);
 	document.querySelector("#addExpenseCategory").addEventListener("click", addExpenseCategory);
 	document.querySelector("#expenseCategories").addEventListener("click", (event) => {
 		if (event.target.closest(".category__save")) changeExpenseCategory(event.target.closest(".category__item").dataset.id, event.target.closest(".category__item").querySelector("input").value);
@@ -533,7 +516,8 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	investorsContainer.addEventListener("click", (event) => {
 		if (event.target.closest(".investor__delete")) removeInvestor(event.target.closest(".investor__item").dataset.id);
 	});
-	document.querySelector("#chartType").addEventListener("change", changeChartType)
+	document.querySelector("#chartYears").addEventListener("change", changeCurrentChartYear);
+	document.querySelector("#chartType").addEventListener("change", changeChartIndicator)
 	document.querySelector("#login").addEventListener("click", authentication);
 	document.querySelector("#logout").addEventListener("click", logout);
 })());
