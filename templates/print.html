@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" type="text/css" href="./css/print.css">
+	<title>Document</title>
+</head>
+
+<body>
+	<h1>Звіт за {{date}}</h1>
+	<h2>Витрати</h2>
+	<table class="expenses">
+		<thead>
+			<tr>
+				<th>№</th>
+				<th>Дата</th>
+				<th>Сума</th>
+				<th>Категорія</th>
+				<th>Опис</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{expensesTable}}
+		</tbody>
+	</table>
+	<div class="footer">
+		<p>Всього витрати: {{totalExpenses}}</p>
+	</div>
+	<div class="row row_border">
+		<div class="column">
+			<h2>Доходи</h2>
+			<div class="label">Основний (70 рахунок):</div>
+			<div class="number">{{mainIncome}}</div>
+			<div class="label">Додаткові надходження:</div>
+			<div class="number">{{subIncome}}</div>
+		</div>
+		<div class="column">
+			<h2>Баланс</h2>
+			<div class="label">На початок періоду:</div>
+			<div class="number">{{initialBalance}}</div>
+			<div class="label">Поточний:</div>
+			<div class="number">{{balance}}</div>
+		</div>
+	</div>
+	<div class="row row_border">
+		<div class="column">
+			<h2>Прибуток</h2>
+			<div class="label">Операційний:</div>
+			<div class="number">{{grossProfit}}</div>
+			<div class="label">Дивіденди:</div>
+			<div class="number">{{dividentsAmount}}</div>
+		</div>
+		<div class="column">
+			<h2>Собівартість</h2>
+			<div class="label">Продукції (26 рахунок):</div>
+			<div class="number">{{productionCosts}}</div>
+			<div class="label">Товарів (281 рахунок):</div>
+			<div class="number">{{goodsCosts}}</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="column">
+			<h2>Дивіденди</h2>
+			<table>
+				<thead>
+					<tr>
+						<th>ПІБ</th>
+						<th>Сума</th>
+					</tr>
+				</thead>
+				<tbody>
+					{{dividentsTable}}
+				</tbody>
+			</table>
+		</div>
+		<div class="column">
+			<h2>Залишок на наступний період</h2>
+			<div class="number">{{restBalance}}</div>
+		</div>
+	</div>
+</body>
+
+</html>

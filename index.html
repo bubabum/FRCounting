@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,200,0,0&icon_names=add,assignment,bar_chart,bookmark,close,cloud_upload,create,delete,draft,file_save,list,logout,manage_accounts,open_in_new,print,receipt_long,sync,task,upload_file" />
+	<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap%22%20rel=%22stylesheet" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="./css/index.css">
+	<link rel="shortcut icon" href="./img/logo.svg">
+	<title>FRCounting</title>
+</head>
+
+<body>
+	<div class="wrapper">
+		<div class="loader">
+			<span></span>
+		</div>
+		<div class="login logged">
+			<img class="login__img" src="./img/logo.svg" alt="">
+			<div class="login__header">FRCounting</div>
+			<div class="login__form">
+				<input type="email" name="" id="email" placeholder="Email">
+				<input type="password" id="password" placeholder="Password">
+				<button id="login" class="primary">Вхід</button>
+			</div>
+		</div>
+		<div class="sidebar">
+			<div class="sidebar__header">
+				<div class="sidebar__img">
+					<img src="./img/logo.svg" alt="">
+				</div>
+				<div class="sidebar__logo">FRCounting</div>
+				<div class="sidebar__menu">
+					<button id="reportListBtn" data-screen="reports" class="sidebar__btn open-screen">
+						<span class="material-symbols-outlined">list</span>
+						<span class="btn-title">Звіти</span>
+					</button>
+					<button id="openReportBtn" data-screen="report" class="sidebar__btn open-screen" disabled>
+						<span class="material-symbols-outlined">assignment</span>
+						<span class="btn-title">Звіт</span>
+					</button>
+					<button data-screen="expenses" class="sidebar__btn open-screen">
+						<span class="material-symbols-outlined">receipt_long</span>
+						<span class="btn-title">Витрати</span>
+					</button>
+					<button data-screen="investors" class="sidebar__btn open-screen">
+						<span class="material-symbols-outlined">manage_accounts</span>
+						<span class="btn-title">Інвестори</span>
+					</button>
+					<button data-screen="import" class="sidebar__btn open-screen">
+						<span class="material-symbols-outlined ">sync</span>
+						<span class="btn-title">Синхронізація</span>
+					</button>
+					<button id="openCharts" data-screen="charts" class="sidebar__btn open-screen" disabled>
+						<span class="material-symbols-outlined">bar_chart</span>
+						<span class="btn-title">Графіки</span>
+					</button>
+				</div>
+			</div>
+			<div class="sidebar__footer">
+				<button id="logout" class="sidebar__btn">
+					<span class="material-symbols-outlined">logout</span>
+					<span class="btn-title">Вихід</span>
+				</button>
+			</div>
+		</div>
+		<div class="content">
+			<div id="reports" class="content__screen">
+				<div class="content__title">Звіти</div>
+				<div class="content__page">
+					<div class="button-group button-group-h">
+						<button id="createReport" class="reports__add primary"><span class="material-symbols-outlined">create</span>Створити</button>
+						<select name="" id="sortReports">
+							<option value="dateNewest">Дата найновіший</option>
+							<option value="dateOldest">Дата найстаріший</option>
+							<option value="profit">Прибуток</option>
+							<option value="income">Дохід</option>
+						</select>
+					</div>
+					<div class="content__row">
+						<div class="content__section">
+							<div class="reports">
+								<div class="reports__header">
+									<div>Дата</div>
+									<div>Дохід</div>
+									<div>Витрати</div>
+									<div>Прибуток</div>
+									<div></div>
+								</div>
+								<div id="reportsContainer" class="reports__content">
+									<div class="loader">
+										<span></span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="report" class="content__screen">
+				<div class="content__title">Звіт</div>
+				<div class="content__page">
+					<div class="report">
+						<div class="content__section small">
+							<h2>Дохід</h2>
+							<label for="">Дохід (70 рахунок)</label>
+							<input class="report-input" type="number" min="0" value="0" name="mainIncome">
+							<label for="">Додаткові надходження</label>
+							<input class="report-input" type="number" min="0" value="0" name="subIncome">
+						</div>
+						<div class="content__section small">
+							<h2>Баланс</h2>
+							<label for="">На початок періоду</label>
+							<input class="report-input" type="number" min="0" value="0" name="initialBalance">
+							<label for="">Поточний</label>
+							<div id="balance" class="content__number">0.00 ₴</div>
+						</div>
+						<div class="content__section small">
+							<h2>Собівартість</h2>
+							<div class="cost-price">
+								<label for="">Продукції (26 рахунок)</label>
+								<input class="report-input" type="number" min="0" value="0" name="productionCosts">
+								<label for="">Товарів (281 рахунок)</label>
+								<input class="report-input" type="number" min="0" value="0" name="goodsCosts">
+							</div>
+						</div>
+						<div class="content__section small">
+							<h2>Прибуток</h2>
+							<label for="">Операційний</label>
+							<div id="grossProfit" class="content__number">0.00 ₴</div>
+							<label for="">Дивіденди</label>
+							<input class="report-input" type="number" min="0" step="100" value="0" name="dividentsAmount">
+						</div>
+						<div class="content__section medium content__section_dividents">
+							<div>
+								<h2>Дивіденди</h2>
+								<div class="divivdents"></div>
+							</div>
+							<div>
+								<h2>Залишок на наступний період</h2>
+								<div id="restBalance" class="content__number">0.00 ₴</div>
+							</div>
+						</div>
+						<div class="large">
+							<div class="report-buttons">
+								<input id="reportDate" class="" type="month" name="date">
+								<div class="button-group button-group-h">
+									<button id="printReport" class="primary"><span class="material-symbols-outlined">print</span>Друк</button>
+									<button id="saveReport" class="primary"><span class="material-symbols-outlined">draft</span>Зберегти</button>
+									<button id="completeReport" class="primary"><span class="material-symbols-outlined">task</span>Завершити</button>
+									<button id="closeReport" class="secondary"><span class="material-symbols-outlined">close</span>Закрити</button>
+								</div>
+							</div>
+							<div class="content__section content__section_expenses">
+								<h2>Витрати</h2>
+								<div id="expensesList" class="expenses"></div>
+								<div class="content__footer content__footer_expenses">
+									<div class="expenses-summary">
+										<label for="">Всього</label>
+										<div id="totalExpenses" class="content__number">0.00 ₴</div>
+									</div>
+									<button id="addExpense" class="primary"><span class="material-symbols-outlined">add</span>Додати</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="expenses" class="content__screen">
+				<div class="content__title">Витрати</div>
+				<div class="content__page">
+					<div class="button-group button-group-h">
+						<input id="newExpenseCategory" type="text" name="">
+						<button id="addExpenseCategory" class="primary"><span class="material-symbols-outlined">add</span>Додати</button>
+					</div>
+					<div class="content__section scroll-y">
+						<div id="expenseCategories"></div>
+					</div>
+				</div>
+			</div>
+			<div id="investors" class="content__screen">
+				<div class="content__title">Інвестори</div>
+				<div class="content__page">
+					<div class="button-group button-group-h">
+						<input id="newInvestor" type="text" name="">
+						<button id="addInvestor" class="primary"><span class="material-symbols-outlined">add</span>Додати</button>
+						<button id="saveInvestors" class="primary"><span class="material-symbols-outlined">bookmark</span>Зберегти</button>
+					</div>
+					<div class="content__section scroll-y">
+						<div id="investorsContainer"></div>
+					</div>
+				</div>
+			</div>
+			<div id="import" class="content__screen">
+				<div class="content__title">Імпорт</div>
+				<div class="content__page">
+					<div class="content__section">
+						<h2>Імпорт</h2>
+						<div class="button-group button-group-v">
+							<input id="file" type="file" accept=".json">
+							<button id="importFromFile" class="primary"><span class="material-symbols-outlined">upload_file</span>Імпорт</button>
+							<button id="saveToCloud" class="primary"><span class="material-symbols-outlined">cloud_upload</span>Вивантажити в хмару</button>
+						</div>
+						<h2>Експорт</h2>
+						<button id="saveToFile" class="primary"><span class="material-symbols-outlined">file_save</span>Експорт</button>
+					</div>
+				</div>
+			</div>
+			<div id="charts" class="content__screen">
+				<div class="content__title">Графік</div>
+				<div class="content__page">
+					<div class="content__charts">
+						<div class=" content__section">
+							<div class="button-group button-group-h">
+								<label for="">Графіки за:</label>
+								<select id="chartYears" class="" name="chartYears"></select>
+								<label for="">Тип:</label>
+								<select id="chartType" class="" name="chartType">
+									<option value="dividentsAmount">Дивіденти</option>
+									<option value="mainIncome">Дохід</option>
+									<option value="totalExpenses">Витрати</option>
+								</select>
+							</div>
+							<canvas class="chart" id="byIndicatorChart"></canvas>
+						</div>
+						<div class="content__section">
+							<canvas id="dividentsAmountByYearChart"></canvas>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script type="module" src="./js/index.js"></script>
+</body>
+
+</html>
