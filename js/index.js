@@ -33,18 +33,21 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		dateOldest: (a, b) => new Date(a.date) - new Date(b.date),
 		profit: (a, b) => b.grossProfit - a.grossProfit,
 		income: (a, b) => b.mainIncome - a.mainIncome,
+		dividends: (a, b) => b.dividentsAmount - a.dividentsAmount,
 	}
 
 	const formatToRender = num => num.toFixed(2) + " ₴";
 	const safeRound = value => Number(value.toFixed(2));
 
 	const createReportHtml = report => {
+		console.log(report)
 		return `
 		<div class="reports__item ${report.status === 'draft' ? 'reports__item_draft' : ''}">
 			<div class="reports__date">${report.date.split("-").reverse().join(".")}</div>
 			<div>${formatToRender(report.mainIncome + report.subIncome)}</div>
 			<div>${formatToRender(report.totalExpenses)}</div>
 			<div>${formatToRender(report.grossProfit)}</div>
+			<div>${formatToRender(report.dividentsAmount)}</div>
 			<div class="reports__btns">
 				<button data-id="${report.id}" class="report__open secondary"><span class="material-symbols-outlined">open_in_new</span>Переглянути</button>
 				<button data-id="${report.id}" class="report__delete secondary"><span class="material-symbols-outlined">delete</span></button>
@@ -424,12 +427,14 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		document.querySelectorAll(".login, .sidebar, .content").forEach(item => item.classList.remove("logged"));
 	}
 
-	const authentication = async () => {
+	const authentication = async (event) => {
+		event.preventDefault();
 		const email = document.querySelector("#email").value;
 		const password = document.querySelector("#password").value;
 		document.querySelector(".login").classList.add("loading")
 		try {
 			await login(email, password);
+			document.querySelector(".login__form").reset();
 		} catch (error) {
 			alert("Помилка входу: " + error)
 		} finally {

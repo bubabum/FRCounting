@@ -641,7 +641,7 @@ input.report-input {
 .reports__header {
 	width: calc(100% - 15px);
 	display: grid;
-	grid-template-columns: repeat(5, 1fr);
+	grid-template-columns: repeat(6, 1fr);
 	justify-content: space-between;
 	font-weight: 600;
 	border-bottom: 1px solid var(--grayLightest);
@@ -659,7 +659,7 @@ input.report-input {
 
 .reports__item {
 	display: grid;
-	grid-template-columns: repeat(5, 1fr);
+	grid-template-columns: repeat(6, 1fr);
 	justify-content: space-between;
 	align-items: center;
 	margin: 10px 0;

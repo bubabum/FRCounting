@@ -21,11 +21,11 @@
 		<div class="login logged">
 			<img class="login__img" src="./img/logo.svg" alt="">
 			<div class="login__header">FRCounting</div>
-			<div class="login__form">
+			<form class="login__form">
 				<input type="email" name="" id="email" placeholder="Email">
 				<input type="password" id="password" placeholder="Password">
-				<button id="login" class="primary">Вхід</button>
-			</div>
+				<button id="login" type="submit" class="primary">Вхід</button>
+			</form>
 		</div>
 		<div class="sidebar">
 			<div class="sidebar__header">
@@ -78,6 +78,7 @@
 							<option value="dateOldest">Дата найстаріший</option>
 							<option value="profit">Прибуток</option>
 							<option value="income">Дохід</option>
+							<option value="dividends">Дивіденди</option>
 						</select>
 					</div>
 					<div class="content__row">
@@ -88,6 +89,7 @@
 									<div>Дохід</div>
 									<div>Витрати</div>
 									<div>Прибуток</div>
+									<div>Дивіденти</div>
 									<div></div>
 								</div>
 								<div id="reportsContainer" class="reports__content">
