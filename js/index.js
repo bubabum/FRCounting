@@ -38,9 +38,9 @@ document.addEventListener("DOMContentLoaded", (async () => {
 
 	const formatToRender = num => num.toFixed(2) + " ₴";
 	const safeRound = value => Number(value.toFixed(2));
+	const inputValueToFixed = input => input.value = input.valueAsNumber.toFixed(2);
 
 	const createReportHtml = report => {
-		console.log(report)
 		return `
 		<div class="reports__item ${report.status === 'draft' ? 'reports__item_draft' : ''}">
 			<div class="reports__date">${report.date.split("-").reverse().join(".")}</div>
@@ -76,8 +76,8 @@ document.addEventListener("DOMContentLoaded", (async () => {
 		`
 	}
 
-	const createSelectHtml = () => {
-		return appData.expenseCategories.map(item => `<option value="${item.id}">${item.category}</option>`).join('')
+	const createSelectHtml = (expense, expenseCategories = appData.expenseCategories) => {
+		return expenseCategories.map(item => `<option value="${item.id}" ${item.id === Number(expense?.category) ? "selected" : ""}>${item.category}</option>`).join('')
 	}
 
 	const createExpenseInputHtml = () => {
@@ -91,15 +91,12 @@ document.addEventListener("DOMContentLoaded", (async () => {
 			</div>
 		`
 	}
-
 	const createExpenseFilledInputHtml = (expense, expenseCategories) => {
 		return `
 			<div class="expenses__item">
 				<input class="expenses__date" type="date" name="date" value="${expense.date}">
-				<input class="expenses__amount" type="number" value="${expense.amount}" min="0" name="amount">
-				<select class="expenses__category" name="category">
-					<option value="${expense.category}" selected>${expenseCategories.find(item => item.id === Number(expense.category)).category}</option>
-				</select>
+				<input class="expenses__amount" type="number" value="${expense.amount.toFixed(2)}" min="0" name="amount">
+				<select class="expenses__category" name="category">${createSelectHtml(expense, expenseCategories)}</select>
 				<input class="expenses__note" type="text" name="note" value="${expense.note}">
 				<button class="expenses__delete secondary"><span class="material-symbols-outlined">delete_outline</span></button>
 			</div>
@@ -204,7 +201,7 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	}
 
 	const renderReportInputs = report => {
-		reportInputs.forEach(item => item.value = report[item.name]);
+		reportInputs.forEach(item => item.value = report[item.name].toFixed(2));
 		reportDateInput.value = report.date;
 		let createHtml = createExpenseHtml;
 		if (report.status === "draft") createHtml = createExpenseFilledInputHtml;
@@ -469,6 +466,10 @@ document.addEventListener("DOMContentLoaded", (async () => {
 	initAuthListener(showApp, hideApp);
 
 	[expensesContainer, ...reportInputs, reportDateInput].forEach(item => item.addEventListener("change", updateReport));
+	reportInputs.forEach(item => item.addEventListener("blur", event => inputValueToFixed(event.target)));
+	expensesContainer.addEventListener("blur", event => {
+		if (event.target.type === "number") inputValueToFixed(event.target)
+	}, true);
 	document.querySelector("#addExpense").addEventListener("click", addExpense);
 	document.querySelector(".expenses").addEventListener("click", (event) => {
 		if (event.target.closest(".expenses__delete")) removeExpense(event.target);
